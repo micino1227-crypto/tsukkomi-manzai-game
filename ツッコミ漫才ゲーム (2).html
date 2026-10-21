@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ツッコミ漫才ゲーム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+--page:#ffd21f;--dots:rgba(22,18,16,.13);--ink:#161210;--ink-soft:#4a3b2c;
+--paper:#fffdf6;--line:#161210;--shadow:#161210;--soft:#fff1b8;--veil:rgba(255,210,31,.86);
+--hud:#161210;--hud-ink:#fffdf6;--hud-num:#ffd21f;
+--accent:#e8312a;--accent-ink:#fffdf6;--sign-ink:#ffd21f;
+--stage-top:#3b1613;--stage-bottom:#1c0b09;--spot:rgba(255,224,150,.30);
+--curtain:#b3221c;--curtain-deep:#7a1013;--fringe:#ffd21f;--floor-top:#a8692f;--floor-bottom:#6b3d17;
+--bubble:#fffdf6;--bubble-ink:#161210;--bubble-line:#161210;
+--zone-just:#22b765;--zone-late:#ffb300;--zone-ok:#ff7a1a;--zone-slow:#e8412f;
+--great:#e8312a;--good:#ff8a00;--ok:#1fa85e;--weak:#3f7ae0;--miss:#8a8a8a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){color-scheme:dark;
+--page:#17132b;--dots:rgba(255,255,255,.06);--ink:#fff6e0;--ink-soft:#c8bedf;
+--paper:#262042;--line:#f3e9cf;--shadow:#000000;--soft:#2f2852;--veil:rgba(23,19,43,.88);
+--hud:#0d0a1c;--hud-ink:#fff6e0;--hud-num:#ffd21f;
+--accent:#ff4b3e;--accent-ink:#17132b;
+--stage-top:#2a0f0d;--stage-bottom:#0c0504;--spot:rgba(255,224,150,.22);
+--curtain:#9a1d18;--curtain-deep:#5c0b0e;--fringe:#e5b417;--floor-top:#7d4d22;--floor-bottom:#3f230d;
+--bubble-line:#000000}}
+:root[data-theme="dark"]{color-scheme:dark;
+--page:#17132b;--dots:rgba(255,255,255,.06);--ink:#fff6e0;--ink-soft:#c8bedf;
+--paper:#262042;--line:#f3e9cf;--shadow:#000000;--soft:#2f2852;--veil:rgba(23,19,43,.88);
+--hud:#0d0a1c;--hud-ink:#fff6e0;--hud-num:#ffd21f;
+--accent:#ff4b3e;--accent-ink:#17132b;
+--stage-top:#2a0f0d;--stage-bottom:#0c0504;--spot:rgba(255,224,150,.22);
+--curtain:#9a1d18;--curtain-deep:#5c0b0e;--fringe:#e5b417;--floor-top:#7d4d22;--floor-bottom:#3f230d;
+--bubble-line:#000000}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background-color:var(--page);background-image:radial-gradient(var(--dots) 1.1px,transparent 1.7px);background-size:9px 9px;color:var(--ink);font-family:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo",system-ui,sans-serif;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;overscroll-behavior:none}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.app{position:relative;height:100%;min-height:540px;max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:8px;padding:8px 12px 10px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+
+/* 得点ボード */
+.hud{background:var(--hud);color:var(--hud-ink);border:2.5px solid var(--line);border-radius:14px;padding:6px 12px 8px;box-shadow:0 3px 0 var(--shadow)}
+.hud-row{display:flex;align-items:center;gap:12px}
+.stat{display:flex;flex-direction:column;min-width:56px;line-height:1.15}
+.stat .lbl{font-size:11px;font-weight:700;opacity:.7}
+.stat b{display:inline-block;font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-weight:400;font-size:19px;font-variant-numeric:tabular-nums}
+.stat.score{flex:1;align-items:center}
+.stat.score b{font-size:25px;color:var(--hud-num)}
+.stat b.bump{animation:bump .3s ease-out}
+.mute{border:0;background:none;font-size:20px;line-height:1;padding:6px;cursor:pointer}
+.laugh{display:flex;align-items:center;gap:8px;margin-top:4px}
+.laugh .lbl{font-size:11px;font-weight:700;opacity:.7;white-space:nowrap}
+.meter{flex:1;height:9px;border-radius:5px;background:rgba(255,255,255,.16);overflow:hidden}
+.meter i{display:block;width:30%;height:100%;border-radius:5px;background:var(--hud-num);transition:width .5s cubic-bezier(.2,.9,.3,1.2)}
+
+/* 舞台 */
+.stage{position:relative;flex:1 1 auto;min-height:240px;border:3px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:0 4px 0 var(--shadow);
+background:radial-gradient(ellipse 62% 55% at 50% 74%,var(--spot),transparent 72%),linear-gradient(180deg,var(--stage-top),var(--stage-bottom))}
+.stage.shake{animation:shake .32s linear}
+.valance{position:absolute;left:0;right:0;top:0;height:30px;z-index:7;pointer-events:none;
+background:radial-gradient(circle at 50% 0,var(--curtain) 0 13px,var(--fringe) 13.5px 15.5px,transparent 16px) 0 12px/30px 18px repeat-x,linear-gradient(180deg,var(--curtain-deep),var(--curtain)) 0 0/100% 13px no-repeat}
+.drape{position:absolute;top:0;bottom:0;width:52%;z-index:6;pointer-events:none;transition:transform .9s cubic-bezier(.65,0,.3,1);
+background:repeating-linear-gradient(90deg,var(--curtain-deep) 0 5px,var(--curtain) 5px 21px,var(--curtain-deep) 21px 27px)}
+.drape.l{left:0;transform:translateX(calc(-100% + 12px))}
+.drape.r{right:0;transform:translateX(calc(100% - 12px))}
+.stage.closed .drape{transform:translateX(0)}
+.flash{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;background:radial-gradient(circle at 32% 62%,rgba(255,255,255,.7),transparent 62%)}
+.flash.on{animation:flash .5s ease-out}
+.mekuri{position:absolute;right:16px;bottom:30px;z-index:2;max-height:58%;padding:9px 0;width:30px;background:#fffdf6;color:#161210;border:2px solid #161210;border-radius:3px;box-shadow:2px 2px 0 rgba(0,0,0,.45);writing-mode:vertical-rl;text-orientation:upright;font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-size:13px;line-height:26px;letter-spacing:.06em;overflow:hidden;pointer-events:none}
+
+/* ふきだし */
+.bubbles{position:absolute;left:0;right:0;top:36px;z-index:3;padding:0 22px;display:flex;flex-direction:column;gap:12px;pointer-events:none}
+.bubble{position:relative;background:var(--bubble);color:var(--bubble-ink);border:2.5px solid var(--bubble-line);border-radius:16px;box-shadow:3px 3px 0 var(--bubble-line);padding:9px 12px;font-weight:700;font-size:clamp(15px,4.3vw,18px);line-height:1.45;transition:opacity .15s,transform .15s}
+.bubble p{margin:0;white-space:pre-line;min-height:1.45em}
+.bubble.boke{align-self:flex-start;max-width:94%;min-width:60%}
+.bubble.boke p{min-height:2.9em}
+.bubble.tsuk{align-self:flex-end;max-width:82%;min-width:40%;transform-origin:85% 100%}
+.bubble .who{position:absolute;top:-10px;left:10px;padding:3px 8px;border-radius:8px;background:var(--bubble-line);color:var(--bubble);font-size:10.5px;font-weight:900;line-height:1}
+.bubble.tsuk .who{left:auto;right:10px}
+.bubble::after{content:"";position:absolute;bottom:-8.5px;width:14px;height:14px;background:var(--bubble);border-right:2.5px solid var(--bubble-line);border-bottom:2.5px solid var(--bubble-line);transform:rotate(45deg)}
+.bubble.boke::after{left:28px}
+.bubble.tsuk::after{right:28px}
+.bubble.hide{opacity:0;transform:translateY(6px) scale(.97)}
+.bubble.say{animation:say .28s cubic-bezier(.2,.9,.3,1.4)}
+
+/* 演者 */
+.performers{position:relative;z-index:2;display:flex;align-items:flex-end;justify-content:center;gap:3%;padding:0 14px;margin-bottom:-8px}
+.char{height:calc(clamp(100px,19vh,168px) * var(--h,1));width:auto;overflow:visible;transform-origin:50% 100%}
+.mic{height:clamp(84px,16vh,146px);width:auto;overflow:visible}
+.char .bob{transform-box:view-box;transform-origin:60px 176px}
+.char .eyes{transform-box:view-box;transform-origin:60px 52px;animation:blink 4.6s infinite}
+.tsuk-char .eyes{animation-delay:-2.1s}
+.char .mouth-open{display:none}
+.char.open .mouth-open{display:inline}
+.char.open .mouth-closed{display:none}
+.char .arm{transform-box:view-box;transform-origin:23px 97px}
+.char .garm{transform-box:view-box;transform-origin:98px 95px}
+.char.off-l{transform:translateX(-190%)}
+.char.off-r{transform:translateX(190%)}
+.char.walk{transition:transform 3s cubic-bezier(.3,.55,.35,1)}
+.char.walk-out{transition:transform 2s cubic-bezier(.55,0,.75,.5)}
+.char.walk .bob,.char.walk-out .bob{animation:stepbob .3s ease-in-out infinite}
+.char.talking .bob{animation:talknod .5s ease-in-out infinite}
+.char.lunge{animation:lunge .42s ease-out}
+.char.lunge .arm{animation:swing .42s ease-out}
+.char.hit{animation:hit .4s ease-out}
+.char.hit-big{animation:hitbig .55s ease-out}
+.char.bow{animation:bow 1.1s ease-in-out}
+
+/* 芸風ごとの動き */
+.stage[data-move="tennen"] .boke-char.talking .bob{animation:sway 1.4s ease-in-out infinite}
+.stage[data-move="tennen"] .boke-char.walk .bob{animation:skip .34s ease-in-out infinite}
+.stage[data-move="tennen"] .char.walk{transition-duration:3.2s}
+.stage[data-move="tennen"] .boke-char.hit-big{animation:daze .7s ease-out}
+.stage[data-move="sassy"] .boke-char.talking .bob{animation:smug 1.6s ease-in-out infinite}
+.stage[data-move="sassy"] .boke-char.hit-big{animation:shrug .6s ease-out}
+.stage[data-move="mach"] .char.talking .bob{animation:jitter .16s steps(2) infinite}
+.stage[data-move="mach"] .char.walk{transition-duration:1.5s}
+.stage[data-move="mach"] .char.walk-out{transition-duration:1s}
+.stage[data-move="mach"] .char.walk .bob,.stage[data-move="mach"] .char.walk-out .bob{animation-duration:.16s}
+.stage[data-move="mach"] .boke-char.hit-big{animation:flail .45s linear}
+.stage[data-move="deadpan"] .boke-char.talking .bob{animation:none}
+.stage[data-move="deadpan"] .char.walk{transition:transform 3.8s linear}
+.stage[data-move="deadpan"] .boke-char.walk .bob,.stage[data-move="deadpan"] .boke-char.walk-out .bob{animation:none}
+.stage[data-move="deadpan"] .boke-char.hit,.stage[data-move="deadpan"] .boke-char.hit-big{animation:nohit .5s ease-out}
+.stage[data-move="deadpan"] .boke-char .eyes{animation-duration:7s}
+.stage[data-move="logic"] .boke-char.talking .garm{animation:point 1.3s ease-in-out infinite}
+.stage[data-move="logic"] .char.walk{transition-duration:3.2s}
+.stage[data-move="logic"] .boke-char.hit-big{animation:hit .45s ease-out}
+.stage[data-move="fufu"] .boke-char.talking .garm{animation:wave .8s ease-in-out infinite}
+.stage[data-move="fufu"] .char.walk{transition-duration:3.8s}
+.stage[data-move="fufu"] .char.walk .bob,.stage[data-move="fufu"] .char.walk-out .bob{animation-duration:.45s}
+.stage[data-move="fufu"] .boke-char.hit,.stage[data-move="fufu"] .boke-char.hit-big{animation:giggle .6s ease-out}
+
+.floor{position:relative;z-index:1;height:38px;background:linear-gradient(180deg,var(--floor-top),var(--floor-bottom))}
+.floor::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:rgba(255,255,255,.22)}
+.audience{position:absolute;left:0;right:0;bottom:-4px;z-index:5;display:flex;justify-content:space-around;padding:0 16px;font-size:clamp(18px,5.4vw,24px);line-height:1;pointer-events:none;filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}
+.audience span{display:inline-block}
+.audience span.jump{animation:jump .5s ease-out}
+.audience span.jump2{animation:jump .42s ease-out 2}
+
+/* 描き文字・評価 */
+.sfx{position:absolute;z-index:8;left:5%;bottom:calc(clamp(100px,19vh,168px) + 22px);font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-size:clamp(22px,7vw,32px);line-height:1;white-space:nowrap;color:var(--c,#fff);opacity:0;pointer-events:none;
+text-shadow:2px 2px 0 #fff,-2px 2px 0 #fff,2px -2px 0 #fff,-2px -2px 0 #fff,0 3px 0 #fff,3px 0 0 #fff,0 -3px 0 #fff,-3px 0 0 #fff,0 6px 0 rgba(0,0,0,.4)}
+.sfx.show{animation:sfx .75s ease-out}
+.popup{position:absolute;left:50%;top:60%;z-index:8;width:92%;text-align:center;pointer-events:none;opacity:0;transform:translate(-50%,-50%)}
+.popup.show{animation:pop 1.3s cubic-bezier(.2,.9,.3,1.2) forwards}
+.popup .rank{font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-size:clamp(42px,14vw,66px);line-height:1;color:var(--rank-color,#fff);
+text-shadow:3px 3px 0 #fff,-3px 3px 0 #fff,3px -3px 0 #fff,-3px -3px 0 #fff,0 3px 0 #fff,3px 0 0 #fff,0 -3px 0 #fff,-3px 0 0 #fff,0 8px 0 rgba(0,0,0,.35)}
+.popup .pts{margin-top:4px;font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-size:20px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.7),0 0 8px rgba(0,0,0,.6)}
+.popup .note{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:10px;background:rgba(0,0,0,.7);color:#fff;font-weight:900;font-size:13.5px}
+.popup .hint{width:max-content;max-width:100%;margin:5px auto 0;padding:3px 10px;border-radius:10px;background:rgba(18,112,62,.94);color:#fff;font-weight:900;font-size:13.5px}
+.popup [hidden]{display:none}
+.apop{position:absolute;right:5%;top:47%;z-index:8;text-align:right;pointer-events:none;opacity:0}
+.apop.show{animation:apop 1s ease-out forwards}
+.apop .r{font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-size:clamp(22px,7vw,30px);line-height:1;color:var(--rank-color,#fff);
+text-shadow:2px 2px 0 #fff,-2px 2px 0 #fff,2px -2px 0 #fff,-2px -2px 0 #fff,0 2px 0 #fff,2px 0 0 #fff,0 -2px 0 #fff,-2px 0 0 #fff,0 5px 0 rgba(0,0,0,.35)}
+.apop .n{display:inline-block;margin-top:4px;padding:2px 8px;border-radius:8px;background:rgba(0,0,0,.7);color:#fff;font-size:12.5px;font-weight:900}
+
+/* 操作エリア */
+.controls{display:flex;flex-direction:column;gap:7px}
+.cue{min-height:22px;text-align:center;font-weight:900;font-size:15px;line-height:1.45;color:var(--ink-soft)}
+.cue span{display:inline-block;padding:0 12px;border-radius:999px}
+.cue.go span{background:var(--accent);color:var(--accent-ink);animation:cuepop .3s cubic-bezier(.2,.9,.3,1.5)}
+.timer{position:relative;height:18px;border:2px solid var(--line);border-radius:9px;background:var(--soft)}
+.zones{display:flex;height:100%;border-radius:7px;overflow:hidden}
+.z{display:flex;align-items:center;justify-content:center;height:100%;opacity:.45;overflow:hidden;transition:opacity .15s}
+.z[data-label]::after{content:attr(data-label);font-size:10.5px;font-weight:900;line-height:1;color:#fff;white-space:nowrap;text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.timer.on .z{opacity:1}
+.z.g{background:var(--zone-just)}
+.z.y{background:var(--zone-late)}
+.z.o{background:var(--zone-ok)}
+.z.r{background:var(--zone-slow)}
+.needle{position:absolute;top:-6px;bottom:-6px;left:0;width:5px;margin-left:-2.5px;border-radius:3px;background:var(--ink);box-shadow:0 0 0 2px var(--page)}
+.pad{position:relative}
+.idle{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;font-weight:900;font-size:15px;color:var(--ink-soft)}
+.pad[data-mode="none"] .idle{display:flex}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:9px;visibility:hidden}
+.pad[data-mode="opts"] .opts{visibility:visible}
+.aiz,.finale{position:absolute;inset:0;display:none}
+.pad[data-mode="aiz"] .aiz,.pad[data-mode="finale"] .finale{display:block}
+.opt{position:relative;min-height:60px;padding:8px;border:2.5px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);box-shadow:0 4px 0 var(--shadow);font-weight:900;font-size:clamp(14px,4.1vw,17px);line-height:1.25;cursor:pointer;touch-action:manipulation;transition:transform .06s,box-shadow .06s,opacity .15s,background-color .15s,border-color .15s}
+.opt.armed{opacity:.85}
+.opt.live{border-color:var(--accent);box-shadow:0 4px 0 var(--accent)}
+.opt:not(.locked):active{transform:translateY(3px);box-shadow:0 1px 0 var(--shadow)}
+.opt.locked{opacity:.5;cursor:default}
+.opt.best{opacity:1;background:var(--zone-just);border-color:var(--zone-just);color:#fff}
+.opt.picked{opacity:1;outline:3px solid var(--accent);outline-offset:2px}
+.aiz button{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:3px solid var(--line);border-radius:18px;background:var(--paper);color:var(--ink);box-shadow:0 6px 0 var(--shadow);cursor:pointer;touch-action:manipulation;transition:background-color .12s,border-color .12s,box-shadow .12s,transform .06s}
+.aiz small{font-size:12px;font-weight:900;color:var(--ink-soft)}
+.aiz b{font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-weight:400;font-size:clamp(28px,9vw,40px);line-height:1.15}
+.aiz button:active{transform:translateY(3px);box-shadow:0 3px 0 var(--shadow)}
+.aiz button.live{border-color:var(--accent);box-shadow:0 6px 0 var(--accent)}
+.aiz button.pressed{background:var(--soft)}
+.aiz button.hit{background:var(--zone-just);border-color:var(--zone-just);color:#fff}
+.aiz button.meh{background:var(--zone-late);border-color:var(--zone-late);color:#161210}
+.aiz button.bad{background:var(--miss);border-color:var(--miss);color:#fff}
+.aiz button.hit small,.aiz button.bad small{color:#fff}
+.aiz button.meh small{color:#161210}
+.finale button{width:100%;height:100%;border:3px solid var(--line);border-radius:18px;background:var(--accent);color:var(--accent-ink);box-shadow:0 6px 0 var(--shadow);font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-weight:400;font-size:clamp(30px,10vw,44px);cursor:pointer;touch-action:manipulation}
+.finale button.armed{opacity:.85}
+.finale button.locked{opacity:.5}
+.finale button.pressed{opacity:1}
+.finale button.live{animation:pulse .5s ease-in-out infinite alternate}
+.finale button:active{animation:none;transform:translateY(3px);box-shadow:0 2px 0 var(--shadow)}
+
+/* タイトル・コンビ選び・結果 */
+.overlay{position:absolute;inset:0;z-index:20;display:flex;padding:14px;overflow-y:auto;background:var(--veil);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.overlay.hidden{display:none}
+.panel{width:100%;max-width:420px;margin:auto;padding:22px 16px 18px;border:3px solid var(--line);border-radius:22px;background:var(--paper);color:var(--ink);box-shadow:6px 6px 0 var(--shadow);text-align:center}
+.panel p{margin:0}
+.sign{display:inline-block;margin:2px 0 14px;padding:6px 16px 8px;border:3px solid var(--line);background:var(--accent);color:var(--sign-ink);box-shadow:5px 5px 0 var(--shadow);transform:rotate(-3deg);font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-weight:400;font-size:clamp(36px,11vw,50px);line-height:1.1}
+.lead{margin:0 0 10px!important;font-size:15px;font-weight:700;line-height:1.7}
+.howto{margin:0 0 12px;text-align:left}
+.howto summary{cursor:pointer;list-style:none;text-align:center;font-size:14px;font-weight:900;color:var(--ink-soft)}
+.howto summary::-webkit-details-marker{display:none}
+.howto summary::after{content:" ▾"}
+.howto[open] summary::after{content:" ▴"}
+.rules{margin:8px 0 0;padding:12px 14px;border-radius:14px;background:var(--soft);font-size:13px;line-height:1.7;text-align:left}
+.rules p + p,.rules .chips + p{margin-top:6px}
+.rules .chips{margin-top:8px}
+.pick{margin:2px 0 8px!important;font-size:14px;font-weight:900}
+.combos{display:flex;flex-direction:column;gap:10px;text-align:left}
+.combo{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border:2.5px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);box-shadow:0 4px 0 var(--shadow);cursor:pointer;touch-action:manipulation;text-align:left}
+.combo:active{transform:translateY(3px);box-shadow:0 1px 0 var(--shadow)}
+.sw{display:flex;flex:none}
+.sw i{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);background:var(--cc)}
+.sw i + i{margin-left:-9px;background:var(--cc2)}
+.cb{display:flex;flex-direction:column;gap:3px;min-width:0}
+.cn{font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-weight:400;font-size:18px;line-height:1.2}
+.cm{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;font-weight:900}
+.tag{padding:1px 8px;border-radius:999px;background:var(--soft)}
+.lv{color:var(--accent);letter-spacing:.06em}
+.cd{font-size:12.5px;font-weight:700;line-height:1.5;color:var(--ink-soft)}
+.cs{font-size:11.5px;font-weight:900;color:var(--ink-soft)}
+.g{display:inline-block;padding:0 6px;border-radius:6px;background:var(--zone-just);color:#fff;font-weight:900;line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:5px}
+.chip{padding:3px 9px;border-radius:999px;background:var(--c);color:var(--ci,#fff);font-size:12px;font-weight:900}
+.big{display:block;width:100%;padding:14px;border:3px solid var(--line);border-radius:16px;background:var(--accent);color:var(--accent-ink);box-shadow:0 5px 0 var(--shadow);font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-weight:400;font-size:21px;cursor:pointer;touch-action:manipulation}
+.big:active{transform:translateY(3px);box-shadow:0 2px 0 var(--shadow)}
+.big.ghost{background:var(--paper);color:var(--ink)}
+.btns{display:flex;flex-direction:column;gap:12px}
+.best-line{margin-top:12px!important;font-size:12.5px;font-weight:700;color:var(--ink-soft)}
+.done{font-size:13px;font-weight:700;color:var(--ink-soft)}
+.honor{margin:8px 0 0;font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-weight:400;font-size:clamp(24px,8vw,32px);line-height:1.2;color:var(--accent)}
+.big-score{font-family:"Dela Gothic One","Hiragino Sans",sans-serif;font-size:clamp(46px,15vw,62px);line-height:1.1;font-variant-numeric:tabular-nums}
+.big-score small{margin-left:4px;font-size:.4em}
+.new{display:inline-block;margin:4px 0 8px!important;padding:3px 12px;border-radius:999px;background:var(--hud-num);color:#161210;font-size:13px;font-weight:900}
+.rec{margin:4px 0 8px!important;font-size:13px;font-weight:700;color:var(--ink-soft)}
+.row-label{margin:8px 0 4px!important;font-size:12.5px;font-weight:900;color:var(--ink-soft)}
+.sub{margin:12px 0 16px!important;font-size:13.5px;font-weight:700;color:var(--ink-soft)}
+
+@keyframes bump{40%{transform:scale(1.22)}}
+@keyframes shake{0%,100%{transform:none}20%{transform:translate(-5px,2px)}40%{transform:translate(5px,-2px)}60%{transform:translate(-3px,1px)}80%{transform:translate(2px,-1px)}}
+@keyframes flash{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
+@keyframes say{0%{transform:scale(.75)}100%{transform:scale(1)}}
+@keyframes blink{0%,95%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+@keyframes stepbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes skip{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes talknod{0%,100%{transform:translateY(0)}50%{transform:translateY(1.5px)}}
+@keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes smug{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(-2deg) translateY(-1px)}}
+@keyframes jitter{0%{transform:translate(0,0)}50%{transform:translate(1.5px,-1.5px)}}
+@keyframes point{0%,100%{transform:rotate(-150deg)}50%{transform:rotate(-138deg)}}
+@keyframes wave{0%,100%{transform:rotate(-30deg)}50%{transform:rotate(-62deg)}}
+@keyframes lunge{0%,100%{transform:none}30%{transform:translateX(-16px) rotate(-5deg)}}
+@keyframes swing{0%,100%{transform:rotate(0deg)}28%{transform:rotate(120deg)}}
+@keyframes hit{0%,100%{transform:none}35%{transform:translateX(-6px) rotate(-6deg)}}
+@keyframes hitbig{0%,100%{transform:none}28%{transform:translateX(-16px) rotate(-15deg)}60%{transform:translateX(-3px) rotate(4deg)}}
+@keyframes daze{0%,100%{transform:none}30%{transform:translateX(-10px) rotate(-12deg)}60%{transform:rotate(9deg)}}
+@keyframes shrug{0%,100%{transform:none}35%{transform:translateY(-5px) rotate(4deg)}}
+@keyframes flail{0%,100%{transform:none}20%{transform:translateX(-14px) rotate(-10deg)}40%{transform:translateX(-6px) rotate(6deg)}60%{transform:translateX(-12px) rotate(-6deg)}80%{transform:translateX(-3px) rotate(3deg)}}
+@keyframes nohit{0%,100%{transform:none}40%{transform:translateX(-1.5px)}}
+@keyframes giggle{0%,100%{transform:none}25%{transform:translateY(-6px)}50%{transform:none}75%{transform:translateY(-4px)}}
+@keyframes bow{0%,100%{transform:none}35%,70%{transform:translateY(6px) scaleY(.9)}}
+@keyframes jump{0%,100%{transform:translateY(0)}45%{transform:translateY(-12px)}}
+@keyframes sfx{0%{opacity:0;transform:scale(.3) rotate(-18deg)}20%{opacity:1;transform:scale(1.2) rotate(-10deg)}70%{opacity:1;transform:scale(1) rotate(-10deg)}100%{opacity:0;transform:scale(1.05) rotate(-10deg)}}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}24%{opacity:1;transform:translate(-50%,-50%) scale(1)}82%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-62%) scale(1)}}
+@keyframes apop{0%{opacity:0;transform:translateY(8px) scale(.7)}18%{opacity:1;transform:translateY(0) scale(1.08)}30%{opacity:1;transform:none}80%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-8px)}}
+@keyframes cuepop{0%{transform:scale(.6)}100%{transform:scale(1)}}
+@keyframes pulse{to{transform:scale(1.03)}}
+@media (prefers-reduced-motion: reduce){
+  .stage.shake,.char,.char .bob,.char .garm,.char .eyes,.char.lunge .arm,.audience span,.finale button.live,.cue.go span,.bubble.say{animation:none!important}
+  .drape,.char.walk,.char.walk-out{transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="hud">
+    <div class="hud-row">
+      <div class="stat"><span class="lbl">ネタ</span><b id="round">-</b></div>
+      <div class="stat score"><span class="lbl">得点</span><b id="score">0</b></div>
+      <div class="stat"><span class="lbl">コンボ</span><b id="combo">0</b></div>
+      <button class="mute" id="mute" type="button" aria-label="音を消す">🔊</button>
+    </div>
+    <div class="laugh"><span class="lbl">客席の笑い</span><div class="meter"><i id="laughFill"></i></div></div>
+  </header>
+
+  <main class="stage closed" id="stage" data-move="classic">
+    <div class="flash" id="flash"></div>
+    <div class="bubbles">
+      <div class="bubble boke hide" id="bokeBubble"><span class="who">ボケ</span><p id="bokeText"></p></div>
+      <div class="bubble tsuk hide" id="tsukBubble"><span class="who">あなた</span><p id="tsukText"></p></div>
+    </div>
+    <div class="sfx" id="sfx"></div>
+    <div class="performers">
+      <svg class="char boke-char" id="bokeChar" viewBox="0 0 120 180" aria-hidden="true"></svg>
+      <svg class="mic" viewBox="0 0 60 150" aria-hidden="true">
+        <defs><linearGradient id="micGold" x1="0" x2="1"><stop offset="0" stop-color="#b8860b"/><stop offset=".5" stop-color="#ffd966"/><stop offset="1" stop-color="#a87400"/></linearGradient></defs>
+        <rect x="27" y="40" width="6" height="104" rx="3" fill="url(#micGold)"/>
+        <ellipse cx="30" cy="146" rx="20" ry="4" fill="#5a4000"/>
+        <rect x="20" y="10" width="20" height="34" rx="10" fill="#2b2b2b"/>
+        <rect x="21.5" y="12" width="17" height="20" rx="8.5" fill="#6d6d6d"/>
+        <path d="M22 18h16M22 23h16M22 28h16" stroke="#3b3b3b" stroke-width="1.4"/>
+        <rect x="24" y="40" width="12" height="6" rx="2" fill="url(#micGold)"/>
+      </svg>
+      <svg class="char tsuk-char" id="tsukChar" viewBox="0 0 120 180" aria-hidden="true"></svg>
+    </div>
+    <div class="mekuri" id="mekuri"><span id="mekuriText"></span></div>
+    <div class="floor"></div>
+    <div class="audience" id="audience"></div>
+    <div class="popup" id="popup"><div class="rank" id="popRank"></div><div class="pts" id="popPts"></div><div class="note" id="popNote"></div><div class="hint" id="popHint" hidden></div></div>
+    <div class="apop" id="apop"><div class="r" id="apRank"></div><div class="n" id="apNote"></div></div>
+    <div class="drape l"></div>
+    <div class="drape r"></div>
+    <div class="valance"></div>
+  </main>
+
+  <section class="controls">
+    <div class="cue" id="cue"><span id="cueText"></span></div>
+    <div class="timer" id="timer"><div class="zones" id="zones"></div><b class="needle" id="needle"></b></div>
+    <div class="pad" id="pad" data-mode="none">
+      <div class="idle" id="idle"></div>
+      <div class="opts" id="opts">
+        <button class="opt locked" type="button"></button>
+        <button class="opt locked" type="button"></button>
+        <button class="opt locked" type="button"></button>
+        <button class="opt locked" type="button"></button>
+      </div>
+      <div class="aiz"><button id="aizBtn" type="button"><small>合いの手</small><b id="aizWord">うん</b></button></div>
+      <div class="finale"><button class="locked" id="finaleBtn" type="button">もおええよ！</button></div>
+    </div>
+  </section>
+
+  <div class="overlay" id="overlay"><div class="panel" id="panel"></div></div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ---------- 共通の設定 ---------- */
+  const RANKS = [
+    { label: 'Miss',   short: 'Miss',  pts: 0,   color: 'var(--miss)',  ink: '#fff',    sfx: '' },
+    { label: 'Weak',   short: 'Weak',  pts: 10,  color: 'var(--weak)',  ink: '#fff',    sfx: 'ぺち…' },
+    { label: 'OK',     short: 'OK',    pts: 40,  color: 'var(--ok)',    ink: '#fff',    sfx: 'ペシッ' },
+    { label: 'Good',   short: 'Good',  pts: 70,  color: 'var(--good)',  ink: '#161210', sfx: 'バシッ！' },
+    { label: 'Great!', short: 'Great', pts: 100, color: 'var(--great)', ink: '#fff',    sfx: 'スパーン！' }
+  ];
+  const FIT_WORD = ['', 'イマイチ', 'まあまあ', 'ええツッコミ', 'ドンピシャ'];
+  const TIME_WORD = ['ジャストの間！', 'ちょい遅れ', '間があきすぎ…'];
+  const LAUGH_DELTA = [-12, -2, 6, 12, 18];
+  const AIZ_PTS = [0, 5, 20, 35, 50];
+  const AIZ_LAUGH = [-4, -2, 0, 1, 2];
+  const EARLY_GRACE = 0.35;
+  const FACES = [['😐', '😑', '😶'], ['😐', '🙂'], ['🙂', '😄'], ['😄', '😆'], ['🤣', '😆', '😂']];
+  const TITLES = [[0.92, '漫才の神様'], [0.8, '劇場の看板コンビ'], [0.65, '期待の若手'], [0.45, '養成所の優等生'], [0, 'まずは相方探しから']];
+  const AUD_N = 8;
+  const BEST_PREFIX = 'tsukkomi-manzai-v3-best-';
+  const MUTE_KEY = 'tsukkomi-manzai-muted';
+  const QUIET = /[、。！？…・\s（）「」〜]/;
+  const PAUSE = /[。！？…]/;
+  const CUE_GO = { aiz: '緑に入ったら合いの手！', opts: '今や、ツッコめ！', finale: '今や、締めろ！' };
+  const WALK_MS = { classic: 3000, tennen: 3200, sassy: 3000, mach: 1500, deadpan: 3800, logic: 3200, fufu: 3800 };
+  const WALK_OUT_MS = { mach: 1000 };
+
+  /* ---------- コンビと台本 ----------
+     ツッコミの適切さ：4=ドンピシャ 3=ええ 2=まあまあ 1=イマイチ 0=ツッコミになってない */
+  const STRAIGHT_NETAS = [
+    { setup: [['最近な、ちょっと太ってきてん', 'そうなん？'], ['せやから今日から、ダイエットすることにしてん', 'ええやん']],
+      punch: '晩メシ抜いて、そのぶん朝に倍食うわ！',
+      opts: [['食う量一緒やないか！', 4], ['なんでやねん！', 3], ['しばくぞ！', 1], ['朝から元気やな〜', 0]] },
+    { setup: [['改めて、コンビの紹介させてもらいますね', 'お願いします'], ['僕がボケ担当で', 'はい']],
+      punch: '隣のこいつは、顔で笑いをとる担当です',
+      opts: [['しばくぞ！', 4], ['なんでやねん！', 2], ['知らんがな！', 1], ['よろしくお願いします', 0]] },
+    { setup: [['ちょっと聞いてくれる？', 'なになに？'], ['昨日な、すごいもん見てしもてん', 'なに見たん？']],
+      punch: '近所のおっちゃんが、トマトに水やってた',
+      opts: [['知らんがな！', 4], ['ほんで？', 2], ['しばくぞ！', 1], ['ええ話やな〜', 0]] },
+    { setup: [['オレ、こう見えて人見知りやねん', 'へぇ〜'], ['初対面の人とか、めっちゃ緊張すんねん', 'わかるわ']],
+      punch: 'せやから初対面の人には、まずタメ口でいく',
+      opts: [['どないやねん！', 4], ['なんでやねん！', 3], ['アホか！', 1], ['仲良くなれそうやな', 0]] },
+    { setup: [['今日はな、うちのおじいちゃんも見に来てんねん', 'ほんまに？'], ['どこにおるか、わかります？', 'どこやろ']],
+      punch: '（隣を指さして）ほら、このおじいちゃん',
+      opts: [['誰がじいちゃんや！', 4], ['しばくぞ！', 3], ['なんでやねん！', 2], ['せや、わしじゃ', 0]] },
+    { setup: [['最近、雨ばっかりやなあ', 'せやな'], ['そこでな、ええこと思いついてん', 'なになに？']],
+      punch: '傘のかわりに、ザルかぶって行こ！',
+      opts: [['アホか！', 4], ['なんでやねん！', 3], ['言い方！', 1], ['天才やん！', 0]] },
+    { setup: [['お前の漫才、ずっと見てきたけどな', 'うん'], ['ほんま、おもろいと思うで', 'ありがとう']],
+      punch: 'たまに。たま〜に。奇跡的に。',
+      opts: [['言い方！', 4], ['しばくぞ！', 3], ['なんでやねん！', 2], ['ありがとう！', 0]] },
+    { setup: [['この前の日曜、川へ釣りに行ってん', 'ええやん'], ['これが、めっちゃ釣れてな', 'なに釣れたん？']],
+      punch: 'マグロが100匹',
+      opts: [['盛りすぎや！', 4], ['なんでやねん！', 3], ['知らんがな！', 1], ['すごいやん！', 0]] },
+    { setup: [['オレな、でっかい夢があんねん', 'おお'], ['聞いてくれる？', '聞かせて']],
+      punch: 'お菓子の家に住んで、毎日おやつ食べ放題！',
+      opts: [['小学生か！', 4], ['アホか！', 3], ['しばくぞ！', 1], ['ええ夢やな〜', 0]] },
+    { setup: [['この前、駅前でな、えらいもん見てん', 'なになに？']],
+      punch: '…そういや「駅」って字、馬が入ってるやん。馬って速いよな〜',
+      opts: [['話どこ行くねん！', 4], ['知らんがな！', 3], ['なんでやねん！', 2], ['ほんまや！', 0]] },
+    { setup: [['犬派か猫派かって、よう聞かれるやん', 'あるある'], ['オレ、どっちでもないねん', 'へぇ〜']],
+      punch: 'わんちゃん派やねん',
+      opts: [['犬派やないか！', 4], ['なんでやねん！', 3], ['どないやねん！', 2], ['かわいいよな〜', 0]] },
+    { setup: [['オレ、最近ジム通いはじめてん', 'えらいやん'], ['もう毎日、欠かさず通ってる', 'すごいな']],
+      punch: 'ジムの前の自販機まで',
+      opts: [['中入れや！', 4], ['なんでやねん！', 3], ['アホか！', 2], ['健康的やな〜', 0]] },
+    { setup: [['この前、駅で重そうな荷物持ったおばあちゃんがおってな', 'うん'], ['その荷物、持ってあげてん', 'えらいやん']],
+      punch: 'そのまま自分の家まで持って帰ってん',
+      opts: [['泥棒やないか！', 4], ['なんでやねん！', 3], ['知らんがな！', 1], ['ええ子やな〜', 0]] },
+    { setup: [['お前、今日なんか雰囲気ちゃうな', 'そう？'], ['髪型変えたやろ？ええやん', 'ありがとう']],
+      punch: 'ブロッコリーみたいで',
+      opts: [['しばくぞ！', 4], ['言い方！', 2], ['なんでやねん！', 2], ['ありがとう…', 0]] },
+    { setup: [['昨日な、事件があってん', 'なになに？'], ['夜中にコンビニ行ってん', 'うん']],
+      punch: 'ほんで、帰ってきてん',
+      opts: [['オチは！？', 4], ['知らんがな！', 3], ['なんでやねん！', 2], ['おかえり〜', 0]] },
+    { setup: [['実はオレ、忍者の子孫やねん', 'ほんまに？'], ['せやから毎朝、欠かさずやってることがあんねん', 'なになに？']],
+      punch: '納豆食べてる',
+      opts: [['なんでやねん！', 4], ['知らんがな！', 2], ['しばくぞ！', 1], ['すごいやん！', 0]] },
+    { setup: [['最近、朝晩寒なってきたやろ', 'せやな'], ['せやから昨日、エアコンつけてん', 'うん']],
+      punch: '冷房で。寒さには寒さで対抗や！',
+      opts: [['なんでやねん！', 4], ['アホか！', 3], ['知らんがな！', 1], ['賢いな〜', 0]] },
+    { setup: [['オレ、かなりの方向音痴やねん', 'そうなん？'], ['家の近所でも迷うくらいやねん', '大変やな']],
+      punch: 'せやから、道案内のバイトしてる',
+      opts: [['どないやねん！', 4], ['なんでやねん！', 3], ['しばくぞ！', 1], ['えらいな〜', 0]] },
+    { setup: [['聞いてくれ。ついに彼女ができてん！', 'ほんまに！？'], ['めっちゃかわいくて、毎日会ってんねん', 'ええなあ']],
+      punch: '…夢の中で',
+      opts: [['夢かい！', 4], ['なんでやねん！', 3], ['知らんがな！', 2], ['よかったな〜', 0]] },
+    { setup: [['オレな、生活リズム変えてん', 'へぇ〜'], ['超・朝型人間になってん', 'ええやん']],
+      punch: '毎朝、夕方の6時に起きてる',
+      opts: [['夜型やないか！', 4], ['なんでやねん！', 3], ['アホか！', 2], ['早起きやな〜', 0]] }
+  ];
+
+  const COMBOS = [
+    {
+      id: 'straight', name: 'ど真ん中ストレート', style: '王道しゃべくり', level: 1,
+      desc: 'ベタでわかりやすい、ど真ん中の王道漫才。まずはここから。',
+      tune: 'swing', move: 'classic', spot: 'rgba(255,224,150,.30)', rounds: 5,
+      pace: { speed: 72, accel: 3, minSpeed: 56, line: 450, aizAfter: 750, after: [900, 1100], gs: 0.3, ge: 0.8, narrow: 0.01, fast: 1.1, fastMin: 0.75, lateAdd: 0.8, limitAdd: 1.1 },
+      voice: { boke: { rate: 0.95, pitch: 1.2, step: 0.015 }, tsuk: { rate: 1.12, pitch: 1.0 }, aiz: 1.0 },
+      look: {
+        boke: { sex: 'm', suit: '#d8392b', dark: '#8f1f16', shirt: '#fff', tie: 'bow', tieColor: '#f5b820', bottom: 'pants', bottomColor: '#2b2b3a', hair: '#3a2418', hairStyle: 'spiky', eyes: 'normal', brows: 'none', cheeks: true, mouth: 'smile', acc: [] },
+        tsuk: { sex: 'm', suit: '#2f5fd0', dark: '#1d3a86', shirt: '#fff', tie: 'neck', tieColor: '#e0342b', bottom: 'pants', bottomColor: '#23283a', hair: '#1f1a17', hairStyle: 'neat', eyes: 'dots', glasses: 'round', brows: 'stern', mouth: 'flat', acc: [] }
+      },
+      greet: 'どうも〜！ど真ん中ストレートです！よろしくお願いします！',
+      opening: [
+        ['いや〜、今日はお客さん、いっぱい来てくれてますね〜', 'ほんまやね'],
+        ['顔だけでも覚えて帰ってくださいね〜', 'お願いします'],
+        ['ほんでな、最近ちょっと聞いてほしい話があんねん', 'なになに？']
+      ],
+      transitions: ['ほんでな、', 'あとな、', 'それとな、', '話かわるけどな、', 'そういえばな、'],
+      netas: STRAIGHT_NETAS,
+      closing: ['いや〜、今日もええ漫才できたなあ', 'せやな'],
+      finales: ['ほな最後に、もう一回最初からやります！', 'まだまだいくで！朝までやったるわ！', 'お前との漫才楽しいから、あと3時間やろか！'],
+      miss: ['ツッコんでや〜！', 'せやろ〜？…って、ツッコんでや！'],
+      stop: '…止めてや！',
+      thanks: 'どうも、ありがとうございました〜！'
+    },
+    {
+      id: 'ukkari', name: 'うっかり日和', style: '天然ボケ', level: 1,
+      desc: 'のんびり天然な女性コンビ。ゆっくりなテンポで、うっかりに優しくツッコもう。',
+      tune: 'marimba', move: 'tennen', spot: 'rgba(255,214,120,.32)', rounds: 5,
+      pace: { speed: 80, accel: 2, minSpeed: 66, line: 600, aizAfter: 850, after: [1000, 1200], gs: 0.35, ge: 0.9, narrow: 0.005, fast: 1.25, fastMin: 0.9, lateAdd: 0.9, limitAdd: 1.2 },
+      voice: { boke: { rate: 0.88, pitch: 1.3, step: 0.01 }, tsuk: { rate: 1.05, pitch: 1.1 }, aiz: 0.95 },
+      look: {
+        boke: { sex: 'f', suit: '#f4c430', dark: '#b8860b', shirt: '#fff', tie: 'none', bottom: 'skirt', bottomColor: '#f4c430', hair: '#5a3420', hairStyle: 'bob', eyes: 'normal', brows: 'up', cheeks: true, mouth: 'smile', acc: ['flower'] },
+        tsuk: { sex: 'f', suit: '#2fa784', dark: '#1d6b54', shirt: '#fff', tie: 'none', bottom: 'skirt', bottomColor: '#2b2b3a', hair: '#1f1a17', hairStyle: 'pony', eyes: 'normal', brows: 'stern', mouth: 'flat', acc: [] }
+      },
+      greet: 'どうも〜、うっかり日和です〜！よろしくお願いします〜！',
+      opening: [
+        ['今日はお客さんいっぱいで、うれしいわ〜', 'ほんまやね'],
+        ['…あれ？今日って、何の集まりやったっけ？', '漫才やで'],
+        ['あ、そうやった。ほな、聞いてくれる？', 'うんうん']
+      ],
+      transitions: ['ほんでな、', 'あとな、', 'あ、そういえばな、', 'それでな、'],
+      netas: [
+        { setup: [['私な、最近ことわざ勉強してんねん', 'えらいやん'], ['ちょっと言うてみるな', 'どうぞ']],
+          punch: '猿も木から…落ちたら、痛い！',
+          opts: [['当たり前や！', 4], ['なんでやねん！', 3], ['惜しい！', 2], ['ほんまやね〜', 0]] },
+        { setup: [['昨日、銀行でお金おろそうとしてん', 'うん'], ['でも、機械の名前が出てこおへんくて', 'あるある']],
+          punch: '店員さんに「TMAどこですか？」って聞いてしもた',
+          opts: [['順番ちゃうやん！', 4], ['なんでやねん！', 3], ['通じたん？', 1], ['ようあるわ〜', 0]] },
+        { setup: [['この前、家族で写真撮ってん', 'ええやん'], ['みんなでピースして、ハイチーズって', 'うんうん']],
+          punch: '…でも私がカメラ持ってたから、私だけ写ってへんかった',
+          opts: [['そら写らんわ！', 4], ['なんでやねん！', 2], ['しばくぞ！', 1], ['かわいそうに', 0]] },
+        { setup: [['朝の天気予報で「降水確率50%」って言うててん', 'うんうん'], ['せやから、ちゃんと考えてん', 'えらいやん']],
+          punch: '傘を半分に切って、持っていってん',
+          opts: [['半分の意味ちゃう！', 4], ['なんでやねん！', 3], ['もったいない！', 2], ['賢いやん', 0]] },
+        { setup: [['うちな、犬飼いはじめてん', 'ええなあ'], ['名前つけるの、めっちゃ悩んでん', 'なんにしたん？']],
+          punch: '「イヌ」',
+          opts: [['そのままか！', 4], ['なんでやねん！', 3], ['しばくぞ！', 1], ['かわいい名前やん', 0]] },
+        { setup: [['昨日な、めっちゃ早起きしてん', 'えらいやん'], ['朝5時に起きて、お弁当作って', 'うんうん']],
+          punch: '…駅に着いてから気づいてん。今日、日曜日やって',
+          opts: [['休みやないか！', 4], ['なんでやねん！', 3], ['もったいなっ', 2], ['よかったやん', 0]] },
+        { setup: [['最近な、カロリー気にしててん', 'えらいやん'], ['せやから、ケーキはやめてん', 'すごいやん']],
+          punch: '…ホールで買うのは',
+          opts: [['食べてるやないか！', 4], ['なんでやねん！', 3], ['知らんがな！', 1], ['えらいやん', 0]] },
+        { setup: [['この前、スマホなくしてもうてん', 'えっ'], ['家じゅう探しても、見つからへんくて', '大変やん']],
+          punch: '…せやから、スマホのライトで照らして探してん',
+          opts: [['持ってるやないか！', 4], ['なんでやねん！', 3], ['気づいて！', 2], ['見つかってよかった', 0]] }
+      ],
+      closing: ['いや〜、今日も楽しかったなあ', 'ほんまやね'],
+      finales: ['ほな最後に、お客さんと記念写真撮ろか。…私、カメラ持つわな', 'ほな、また来週〜。…あれ、来週も漫才やったっけ？'],
+      miss: ['…あれ？ツッコまへんの？', 'せやろ〜？…あれ、ツッコまへんの？'],
+      stop: '…え、止めてくれへんの？',
+      thanks: 'どうも、ありがとうございました〜！'
+    },
+    {
+      id: 'fufu', name: 'ちゃぶ台夫婦', style: '夫婦漫才', level: 2,
+      desc: '昭和の香りの夫婦漫才。奥さんにあれこれバラされる、旦那の気持ちでツッコもう。',
+      tune: 'wafu', move: 'fufu', spot: 'rgba(255,190,120,.28)', rounds: 5,
+      pace: { speed: 84, accel: 1, minSpeed: 74, line: 650, aizAfter: 900, after: [1100, 1300], gs: 0.4, ge: 1.0, narrow: 0.005, fast: 1.3, fastMin: 0.95, lateAdd: 0.9, limitAdd: 1.2 },
+      voice: { boke: { rate: 0.86, pitch: 1.15, step: 0 }, tsuk: { rate: 0.95, pitch: 0.85 }, aiz: 0.9 },
+      look: {
+        boke: { sex: 'f', suit: '#c2410c', dark: '#7c2d12', obi: '#f5b820', obiKnot: '#e8a317', hair: '#3b3b3b', hairStyle: 'bun', eyes: 'happy', brows: 'up', cheeks: true, mouth: 'smile', lips: true, acc: ['kimono', 'kanzashi'] },
+        tsuk: { sex: 'm', suit: '#1e3a5f', dark: '#0f2238', obi: '#6b7280', hair: '#9ca3af', hairStyle: 'bald', eyes: 'normal', brows: 'flat', mouth: 'flat', acc: ['kimono', 'mustache'], h: 0.97 }
+      },
+      greet: 'どうも〜、ちゃぶ台夫婦でございます〜！',
+      opening: [
+        ['こう見えて、結婚して40年になりますの', 'もうそんなになるか'],
+        ['毎日けんかしてますけど、仲はええんですよ', 'ほんまかいな']
+      ],
+      transitions: ['ほんでな、', 'それにな、', 'あとな、', 'そういえば、'],
+      netas: [
+        { setup: [['うちの人な、若い頃はほんまにモテたんよ', 'せやろ'], ['毎日ラブレターが届いてな', 'まあな']],
+          punch: '…全部、自分で出しとったんやけどな',
+          opts: [['バラすな！', 4], ['なんでやねん！', 2], ['しばくぞ！', 1], ['懐かしいなあ', 0]] },
+        { setup: [['この前、二人で旅行行ってん', 'ええとこやったな'], ['温泉入って、おいしいもん食べて', 'うまかったなあ']],
+          punch: '…ほんで帰りに、この人、私を駅に置いて帰ったんよ',
+          opts: [['今それ言わんでええ！', 4], ['わざとちゃう！', 3], ['なんでやねん！', 1], ['楽しかったなあ', 0]] },
+        { setup: [['うちの人、料理がうまいんですよ', 'まあな'], ['特に得意なんが', 'おう']],
+          punch: '…お湯わかすの',
+          opts: [['料理ちゃうやろ！', 4], ['それだけちゃうわ！', 3], ['なんでやねん！', 2], ['得意やで', 0]] },
+        { setup: [['毎朝、うちの人の体のために', 'ありがたいな'], ['お弁当に、野菜たっぷり入れてますの', 'ほんまに']],
+          punch: '…その分、お肉は私がいただいてますけど',
+          opts: [['お前が食うんかい！', 4], ['なんでやねん！', 3], ['ずるいわ！', 2], ['ありがとう', 0]] },
+        { setup: [['結婚記念日にな、この人、花束くれたんよ', 'ええ話やろ'], ['真っ赤なバラ、40本', '奮発したんや']],
+          punch: '…全部、造花やったけどな',
+          opts: [['長持ちするからや！', 4], ['言わんでええ！', 3], ['なんでやねん！', 2], ['きれいやったやろ', 1]] },
+        { setup: [['この人、最近物忘れがひどなってな', 'そんなことない'], ['昨日も、メガネどこ置いたかわからん言うて', 'あれは…']],
+          punch: '…かけたまま、探しとったんよ',
+          opts: [['見てたんなら言え！', 4], ['言わんでええ！', 3], ['なんでやねん！', 2], ['ほんまや', 0]] },
+        { setup: [['うちの人、毎朝ジョギングしてますの', 'ええ心がけやろ'], ['雨の日も、欠かさずですよ', 'まあな']],
+          punch: '…新聞取りに、玄関まで',
+          opts: [['それはジョギングと言わん！', 4], ['なんでやねん！', 3], ['しばくぞ！', 1], ['ええ運動や', 0]] }
+      ],
+      closing: ['なんやかんや言うても、この人がおらんとあかんのです', 'お、おう'],
+      finales: ['ほな、これからもよろしゅうに。…あと40年', '最後に、二人の馴れ初めを3時間かけてお話しします'],
+      miss: ['…あんた、聞いてるん？', 'せやろ〜？…いや、なんか言いなさいよ'],
+      stop: '…止めへんの？',
+      thanks: 'どうも、ありがとうございました〜！'
+    },
+    {
+      id: 'karakuchi', name: '辛口ハニー', style: '毒舌', level: 2,
+      desc: '笑顔で毒を吐く相方。悪口の種類を見きわめて、ピッタリの言い返しを選ぼう。',
+      tune: 'funk', move: 'sassy', spot: 'rgba(255,140,190,.26)', rounds: 5,
+      pace: { speed: 70, accel: 3, minSpeed: 54, line: 450, aizAfter: 700, after: [900, 1100], gs: 0.3, ge: 0.8, narrow: 0.01, fast: 1.1, fastMin: 0.75, lateAdd: 0.8, limitAdd: 1.1 },
+      voice: { boke: { rate: 1.0, pitch: 1.15, step: 0.015 }, tsuk: { rate: 1.12, pitch: 0.95 }, aiz: 1.0 },
+      look: {
+        boke: { sex: 'f', suit: '#e85d9a', dark: '#a3305f', shirt: '#fff', tie: 'none', bottom: 'skirt', bottomColor: '#e85d9a', hair: '#e2b04a', hairStyle: 'long', eyes: 'smug', brows: 'up', mouth: 'smirk', lips: true, acc: ['sunglasses'] },
+        tsuk: { sex: 'm', suit: '#6b7280', dark: '#3f444d', shirt: '#fff', tie: 'neck', tieColor: '#1f2937', bottom: 'pants', bottomColor: '#374151', hair: '#2a2a2a', hairStyle: 'side', eyes: 'normal', brows: 'stern', mouth: 'flat', acc: [], h: 1.06 }
+      },
+      greet: 'どうも〜、辛口ハニーです〜！よろしくお願いします〜！',
+      opening: [
+        ['今日のお客さん、みんなおしゃれやわ〜', 'ほんまやね'],
+        ['それに比べて、隣のこいつは…', 'なんやねん'],
+        ['…まあええわ。今日は優しくいくわ', 'たのむで']
+      ],
+      transitions: ['ほんでな、', 'あとな、', 'それとな、', 'ところでな、'],
+      netas: [
+        { setup: [['お前、今日の服ええやん', 'ほんま？'], ['どこで買うたん？', '駅前の店']],
+          punch: 'へぇ〜、あそこまだ潰れてへんかったんや',
+          opts: [['失礼やろ！', 4], ['言い方！', 3], ['しばくぞ！', 2], ['潰れてへんで', 0]] },
+        { setup: [['お前、ほんま優しいよな', 'そう？'], ['困ってる人おったら、すぐ助けるし', '照れるやん']],
+          punch: 'せやのに、なんで友達少ないんやろな',
+          opts: [['ほっとけ！', 4], ['しばくぞ！', 3], ['関係ないやろ！', 2], ['ほんまそれ', 0]] },
+        { setup: [['この前、お前のお母さんに会うたで', 'ほんま？'], ['めっちゃ上品で、きれいな人やったわ', 'ありがとう']],
+          punch: '…お前、どこで間違えたんや',
+          opts: [['誰が失敗作やねん！', 4], ['しばくぞ！', 3], ['なんでやねん！', 2], ['よう言われる', 0]] },
+        { setup: [['お前の顔見てたら、元気出るわ', 'ほんま？'], ['ほんまやで。なんでかわかる？', 'なんで？']],
+          punch: '「私、まだマシや」って思えるから',
+          opts: [['褒めてへんやろ！', 4], ['しばくぞ！', 3], ['言い方！', 2], ['よかったわ', 0]] },
+        { setup: [['最近、ジム通ってるんやって？', 'せやねん'], ['どうりで最近…', 'お、わかる？']],
+          punch: '…何も変わってへんな',
+          opts: [['ほな言うな！', 4], ['しばくぞ！', 3], ['なんでやねん！', 2], ['これからやねん', 1]] },
+        { setup: [['お前、いっつも時間守るよな', 'まあな'], ['約束の30分前には、絶対来てるもんな', 'せやろ']],
+          punch: '…ほかに、することないもんな',
+          opts: [['あるわ！', 4], ['しばくぞ！', 3], ['言い方！', 2], ['ないねん', 0]] },
+        { setup: [['私な、思ったことすぐ口に出してまうねん', '知ってる'], ['口が悪いって、よう怒られんねん', 'せやろな']],
+          punch: 'せやからお前も、もうちょっと言葉選びや',
+          opts: [['お前が言うな！', 4], ['しばくぞ！', 3], ['なんでやねん！', 2], ['気ぃつけるわ', 0]] },
+        { setup: [['今日のお客さん、ほんまにええ人ばっかりやわ', 'せやな'], ['笑い声もやさしいし', 'ほんまや']],
+          punch: '…このネタで笑ってくれるんやもんな',
+          opts: [['お客さんにまで毒吐くな！', 4], ['失礼やろ！', 3], ['しばくぞ！', 2], ['ありがたいな', 0]] }
+      ],
+      closing: ['今日はほんまに楽しかったわ', 'せやな'],
+      finales: ['お前と組めて、ほんまよかったわ。…ほかに組んでくれる人おらんかったし', '最後にお客さんに一言。…ほんまは、もっと笑ってもええねんで'],
+      miss: ['…ツッコミもでけへんの？', 'せやろ〜？…いや、ツッコまんかい！'],
+      stop: '…はよ止めんかい！',
+      thanks: 'どうも、ありがとうございました〜！'
+    },
+    {
+      id: 'mach', name: 'マッハ団子', style: '早口テンポ', level: 2,
+      desc: 'とにかく早口で、短いボケを連発。テンポについていけるかが勝負。',
+      tune: 'surf', move: 'mach', spot: 'rgba(255,240,160,.34)', rounds: 7,
+      pace: { speed: 46, accel: 2, minSpeed: 36, line: 200, aizAfter: 380, after: [450, 550], gs: 0.15, ge: 0.5, narrow: 0.01, fast: 0.85, fastMin: 0.6, lateAdd: 0.6, limitAdd: 0.8 },
+      voice: { boke: { rate: 1.3, pitch: 1.25, step: 0.03 }, tsuk: { rate: 1.35, pitch: 1.05 }, aiz: 1.25 },
+      look: {
+        boke: { sex: 'm', suit: '#ff7a1a', dark: '#b45309', bottom: 'pants', bottomColor: '#1f2937', hair: '#2a1a10', hairStyle: 'spiky', eyes: 'normal', brows: 'up', cheeks: true, mouth: 'smile', acc: ['zip', 'stripes', 'headband'], accColor: '#e8312a' },
+        tsuk: { sex: 'm', suit: '#1f3a8a', dark: '#142659', bottom: 'pants', bottomColor: '#1f2937', hair: '#1f1a17', hairStyle: 'neat', eyes: 'normal', brows: 'stern', mouth: 'flat', acc: ['zip', 'stripes', 'cap'], accColor: '#e8312a', accDark: '#9f1d18', h: 0.96 }
+      },
+      greet: 'どうもどうもどうも！マッハ団子です！',
+      opening: [
+        ['時間ないんで、さっそくいきます！', 'いこか！'],
+        ['ボケまくるんで、ついてきて！', 'まかせとけ！']
+      ],
+      transitions: ['次！', 'はい次！', 'どんどんいくで！', 'つぎつぎ！', 'まだまだ！'],
+      netas: [
+        { setup: [['趣味はマラソン！', 'へぇ！']], punch: 'テレビで見る専門！',
+          opts: [['走れや！', 4], ['なんでやねん！', 3], ['しばくぞ！', 1], ['ええ趣味やん', 0]] },
+        { setup: [['特技は早食い！', 'おお！']], punch: 'ただしカップ麺は、3分ちゃんと待つ！',
+          opts: [['律儀か！', 4], ['なんでやねん！', 3], ['知らんがな！', 2], ['えらいやん', 0]] },
+        { setup: [['オレ、絶対遅刻せえへん！', 'すごい！']], punch: 'そもそも、誰とも約束せえへん！',
+          opts: [['会う気ないんかい！', 4], ['なんでやねん！', 3], ['しばくぞ！', 1], ['えらいな', 0]] },
+        { setup: [['好きな食べ物は団子！', 'コンビ名やな！']], punch: '嫌いな食べ物も団子！',
+          opts: [['どっちやねん！', 4], ['なんでやねん！', 3], ['知らんがな！', 1], ['わかるわ', 0]] },
+        { setup: [['足の速さなら負けへん！', 'ほんまか！']], punch: 'ただし、逃げ足限定！',
+          opts: [['逃げるな！', 4], ['なんでやねん！', 3], ['しばくぞ！', 1], ['かっこええやん', 0]] },
+        { setup: [['昨日、10時間寝た！', 'よう寝たな！']], punch: '1時間ずつ、10日かけて！',
+          opts: [['寝不足やないか！', 4], ['なんでやねん！', 3], ['計算は合うてる！', 2], ['健康的やな', 0]] },
+        { setup: [['バンド組んでん！', 'ええやん！']], punch: 'メンバー募集中！全パート！',
+          opts: [['一人もおらんのか！', 4], ['なんでやねん！', 3], ['入れて！', 1], ['がんばって', 0]] },
+        { setup: [['毎日、日記つけてる！', 'えらい！']], punch: '書いてること、毎日「日記つけた」！',
+          opts: [['中身ないんかい！', 4], ['なんでやねん！', 3], ['知らんがな！', 2], ['えらいやん', 0]] },
+        { setup: [['早口言葉、得意やで！', '言うてみ！']], punch: 'なまむぎ、なまごめ、なま…ビール！',
+          opts: [['飲みたいだけやろ！', 4], ['なんでやねん！', 3], ['噛んでへんやん！', 1], ['うまいやん', 0]] },
+        { setup: [['オレ、記憶力ええねん！', 'ほんまか！']], punch: '…で、今なんの話してたっけ！',
+          opts: [['忘れるの早すぎや！', 4], ['なんでやねん！', 3], ['記憶力の話や', 1], ['しばくぞ！', 2]] }
+      ],
+      closing: ['はい、時間なんでラスト！', 'はやっ！'],
+      finales: ['ラスト！…のラストの、そのまたラスト！', 'ほな最後に、今までのネタ全部、倍速でもう一回！'],
+      miss: ['ツッコミ遅い！', 'せやろ！…いや、ツッコんで！'],
+      stop: '止めて止めて！',
+      thanks: 'ありがとうございました！'
+    },
+    {
+      id: 'logic', name: '屁理屈製作所', style: '屁理屈', level: 3,
+      desc: 'もっともらしい屁理屈をこねる相方。理屈のどこがおかしいかを見抜こう。',
+      tune: 'baroque', move: 'logic', spot: 'rgba(200,230,255,.24)', rounds: 5,
+      pace: { speed: 74, accel: 2, minSpeed: 62, line: 550, aizAfter: 800, after: [1000, 1200], gs: 0.35, ge: 0.85, narrow: 0.01, fast: 1.4, fastMin: 1.0, lateAdd: 1.0, limitAdd: 1.2 },
+      voice: { boke: { rate: 0.92, pitch: 1.0, step: 0.01 }, tsuk: { rate: 1.1, pitch: 0.95 }, aiz: 1.0 },
+      look: {
+        boke: { sex: 'm', suit: '#eef0f2', dark: '#b8bec6', shirt: '#7a5230', tie: 'neck', tieColor: '#2f5fd0', bottom: 'pants', bottomColor: '#4b5563', hair: '#2a2a2a', hairStyle: 'neat', eyes: 'dots', glasses: 'square', brows: 'up', mouth: 'smirk', acc: ['labcoat'] },
+        tsuk: { sex: 'm', suit: '#6d4fb3', dark: '#43307a', shirt: '#fff', tie: 'bow', tieColor: '#f5b820', bottom: 'pants', bottomColor: '#2b2b3a', hair: '#3a2418', hairStyle: 'spiky', eyes: 'normal', brows: 'stern', mouth: 'flat', acc: [] }
+      },
+      greet: 'どうも、屁理屈製作所です。よろしくお願いします',
+      opening: [
+        ['まず最初に、確認しておきたいことがあります', 'なに？'],
+        ['笑うと、寿命が延びると言われています', 'うん'],
+        ['つまり、今日のお客さんは全員長生きです', 'いいね']
+      ],
+      transitions: ['次に、', 'さらに言うと、', 'ところで、', 'もう一つ、'],
+      netas: [
+        { setup: [['朝ごはんは大事って、言いますよね', '言うね'], ['大事なことは、3回言えって言うでしょう', 'まあね']],
+          punch: 'だから僕、朝ごはんを3回食べるんです',
+          opts: [['言うと食べるは別！', 4], ['食べすぎだよ！', 3], ['なんでだよ！', 2], ['えらいね', 0]], why: '「言う」と「食べる」のすり替え' },
+        { setup: [['お金は天下の回りもの、って言いますよね', 'そうだね'], ['だから僕、借りたお金は返さないんです', 'え？']],
+          punch: '回ってくるのを、待ってるんです',
+          opts: [['お前が回せ！', 4], ['返せよ！', 3], ['なんでだよ！', 2], ['いつか来るといいね', 0]], why: '回す役は自分だと指摘する' },
+        { setup: [['早起きは三文の得、って言いますよね', 'うん'], ['三文って、今のお金で約100円らしいんです', 'へえ']],
+          punch: 'だから僕、毎朝100円払って、寝坊してます',
+          opts: [['払うな、起きろ！', 4], ['誰に払ってるの！？', 3], ['なんでだよ！', 2], ['合理的だね', 0]], why: 'お金で解決する発想を否定' },
+        { setup: [['宿題を忘れた理由、ちゃんと説明できます', '言ってみて'], ['宿題って、家でやるものですよね', 'うん']],
+          punch: 'だから、学校に持っていくのは間違いなんです',
+          opts: [['提出までが宿題！', 4], ['屁理屈だよ！', 3], ['なんでだよ！', 2], ['確かに', 0]], why: 'ルールで論破し返す' },
+        { setup: [['地球って、丸いですよね', 'そうだね'], ['まっすぐ歩けば、いつか元の場所に戻ってくる', '理屈ではね']],
+          punch: 'だから僕、家から出ないんです。どうせ戻ってくるので',
+          opts: [['出ない理由にするな！', 4], ['過程を楽しめ！', 3], ['なんでだよ！', 2], ['海もあるよ！', 1]], why: '理屈を言い訳に使っている所' },
+        { setup: [['「急がば回れ」って、言いますよね', 'うん'], ['だから僕、急いでいる時ほど', 'それで？']],
+          punch: '駅の改札の前で、5周回ってから入ります',
+          opts: [['回る意味が違う！', 4], ['余計遅れるだろ！', 3], ['なんでだよ！', 2], ['目が回るよ！', 1]], why: 'ことわざの「回る」の取り違え' },
+        { setup: [['人の話は、最後まで聞いた方がいいですよね', 'そうだね'], ['だから僕、ちゃんと最後まで聞くために', 'うん']],
+          punch: '最初のほうは、聞かないようにしてるんです',
+          opts: [['最初から聞け！', 4], ['意味がわからない！', 2], ['なんでだよ！', 2], ['効率的だね', 0]], why: '目的と手段が逆になっている' },
+        { setup: [['「失敗は成功のもと」って、言いますよね', 'うん'], ['だから僕、成功するために', 'がんばるんだ']],
+          punch: '失敗を、まとめ買いしてきました',
+          opts: [['失敗は買うものじゃない！', 4], ['どこで売ってるの！？', 3], ['なんでだよ！', 2], ['準備がいいね', 0]], why: '失敗を物扱いしている所' }
+      ],
+      closing: ['以上の理由から、今日の漫才は大成功です', 'そうだね'],
+      finales: ['最後に一言。…一言で終わらせるには、あと3時間必要です', '終わりがあるから美しい。だから、終わらせないことにしました'],
+      miss: ['…反論がないということは、僕が正しいということですね', 'ですよね。…いや、反論してください'],
+      stop: '…止めないということは、続けていいということですね',
+      thanks: 'どうも、ありがとうございました'
+    },
+    {
+      id: 'moon', name: '月面チャーハン', style: 'シュール', level: 3,
+      desc: '何を言っているのかわからない、シュール系。どこに突っ込むかが一番むずかしい。',
+      tune: 'space', move: 'deadpan', spot: 'rgba(150,175,255,.26)', rounds: 5,
+      pace: { speed: 82, accel: 2, minSpeed: 70, line: 650, aizAfter: 850, after: [1000, 1200], gs: 0.45, ge: 0.95, narrow: 0.01, fast: 1.35, fastMin: 1.0, lateAdd: 1.0, limitAdd: 1.2 },
+      voice: { boke: { rate: 0.85, pitch: 0.8, step: 0 }, tsuk: { rate: 1.1, pitch: 1.0 }, aiz: 0.95 },
+      look: {
+        boke: { sex: 'm', suit: '#3a3a46', dark: '#16161c', bottom: 'pants', bottomColor: '#1f1f26', hair: '#0f0f12', hairStyle: 'bowl', eyes: 'half', brows: 'flat', mouth: 'flat', skin: '#f1d6c0', acc: ['turtleneck'] },
+        tsuk: { sex: 'm', suit: '#9aa3ad', dark: '#5d6670', shirt: '#fff', tie: 'neck', tieColor: '#1f2937', bottom: 'pants', bottomColor: '#3b4250', hair: '#2b2118', hairStyle: 'side', eyes: 'dots', glasses: 'round', brows: 'stern', mouth: 'flat', acc: [] }
+      },
+      greet: 'どうも、月面チャーハンです。よろしくお願いします',
+      opening: [
+        ['今日は、地球のみなさんに会えて、うれしいです', 'こちらこそ'],
+        ['…それでは、本題に入ります', 'はい']
+      ],
+      transitions: ['ところで、', '話は変わりますが、', 'それから、', 'ちなみに、'],
+      netas: [
+        { setup: [['昨日、チャーハンを作ったんです', 'はい'], ['パラパラにするのが、難しくて', 'わかります']],
+          punch: '結局、パラパラ漫画にしました',
+          opts: [['パラパラの意味が違う！', 4], ['食べ物で遊ぶな！', 3], ['なんでだよ！', 2], ['どういうこと！？', 1]], why: '言葉の取り違えを突く' },
+        { setup: [['この前、月に行ってきました', 'へえ'], ['日帰りでしたけど', 'そうなんだ']],
+          punch: '向こうはうさぎが多くて、駐車場が見つからなくて',
+          opts: [['うさぎも車で来てるの！？', 4], ['月に生活感出すな！', 3], ['なんでだよ！', 2], ['日帰りできるの！？', 1]], why: 'うさぎの車がいちばん変' },
+        { setup: [['実家で、石を飼っているんです', '石？'], ['毎日、エサもあげています', 'エサ…']],
+          punch: '最近、食べ残すようになって',
+          opts: [['最初から食べてないよ！', 4], ['石は食べないでしょ！', 3], ['なんでだよ！', 2], ['病院に連れていって！', 1]], why: '「前は食べてた」前提を崩す' },
+        { setup: [['僕、数字の中で、いちばん好きなのがあって', 'うん'], ['ずっと大事にしてるんです', 'なになに？']],
+          punch: '「4」です。角が多くて、持ちやすいので',
+          opts: [['数字を持つな！', 4], ['角で選ぶな！', 3], ['なんでだよ！', 2], ['7じゃないんだ', 0]], why: '数字を手で持つ発想に突っ込む' },
+        { setup: [['目覚まし時計を、買い替えたんです', 'うん'], ['前のは、優しすぎたので', '優しすぎ？']],
+          punch: '鳴るたびに「まだ寝てていいよ」って言うんです',
+          opts: [['目覚ましの仕事しろ！', 4], ['しゃべるの！？', 3], ['なんでだよ！', 2], ['いい時計じゃん', 0]], why: '目覚ましの役目を果たしてない' },
+        { setup: [['僕、影が薄いって、よく言われるんです', 'そうなの？'], ['だから最近、影を鍛えてます', '影を？']],
+          punch: '今では、僕より先に家に帰ります',
+          opts: [['影が自立してる！', 4], ['影を鍛えるな！', 3], ['なんでだよ！', 2], ['いい影だね', 0]], why: '影が勝手に動く異常さを言う' },
+        { setup: [['昨日、カレーを作ったんです', 'うん'], ['隠し味に、ちょっとだけ入れたものがあって', 'なに？']],
+          punch: '…秘密です。僕にもまだ、教えてくれないんです',
+          opts: [['作ったのお前だろ！', 4], ['誰が入れたの！？', 3], ['なんでだよ！', 2], ['気になる！', 1]], why: '作った本人が知らない矛盾' },
+        { setup: [['休みの日は、海を見に行くんです', 'いいね'], ['ずっと眺めていると、落ち着くので', 'わかる']],
+          punch: '…向こうも、こっちを見てるんですよ',
+          opts: [['海と見つめ合うな！', 4], ['こわいよ！', 3], ['なんでだよ！', 2], ['ロマンチックだね', 0]], why: '海を相手扱いしている所' }
+      ],
+      closing: ['そろそろ、月に帰る時間です', '帰るんだ'],
+      finales: ['最後に、地球のみなさんへ。…チャーハンは、飲み物です', 'では、来週の月曜日にまたお会いしましょう。…先週の'],
+      miss: ['……ツッコまないんですね', 'そうですよね。…いや、ツッコんでください'],
+      stop: '…止めないんですか',
+      thanks: 'どうも、ありがとうございました'
+    }
+  ];
+
+  /* ---------- 出囃子（すべてオリジナル曲） ---------- */
+  const funkBar = o => [[o, .25, 40], [o + .75, .25, 40], [o + 1, .25, 52], [o + 1.5, .25, 40], [o + 2, .25, 43], [o + 2.5, .25, 45], [o + 2.75, .25, 47], [o + 3, .25, 50], [o + 3.5, .25, 52]];
+  const eighths = (start, count, m) => Array.from({ length: count }, (_, i) => [start + i * 0.5, 0.45, m]);
+  const arp16 = (start, beats, cyc) => Array.from({ length: beats * 4 }, (_, i) => [start + i * 0.25, 0.2, cyc[i % 4] + (Math.floor(i / 4) % 2 ? 12 : 0)]);
+  const TUNES = {
+    swing: {
+      bpm: 168, end: 17.8, outro: 8,
+      parts: [
+        { inst: 'brass', vol: 0.08, notes: [[0, .55, 67], [.67, .3, 69], [1, .9, 72], [2, .55, 73], [2.67, .3, 74], [3, .9, 76], [4, .55, 77], [4.67, .3, 76], [5, .55, 74], [5.67, .3, 72], [6, .55, 71], [6.67, .3, 74], [7, .9, 79], [8, .55, 76], [8.67, .3, 79], [9, .9, 81], [10, .55, 79], [10.67, .3, 76], [11, .9, 73], [12, .55, 74], [12.67, .3, 77], [13, .55, 81], [13.67, .3, 79], [14, .55, 77], [14.67, .3, 74], [15, .55, 71], [15.67, .3, 74], [16, 1.6, 84]] },
+        { inst: 'bass', vol: 0.32, notes: [[0, .85, 48], [1, .85, 52], [2, .85, 45], [3, .85, 49], [4, .85, 50], [5, .85, 53], [6, .85, 43], [7, .85, 47], [8, .85, 48], [9, .85, 43], [10, .85, 45], [11, .85, 52], [12, .85, 50], [13, .85, 45], [14, .85, 43], [15, .85, 47], [16, 1.6, 36]] },
+        { inst: 'stab', vol: 0.035, notes: [[0, .4, [64, 67, 69, 72]], [1.67, .4, [64, 67, 69, 73]], [4, .4, [65, 69, 72, 74]], [5.67, .4, [65, 67, 71, 74]], [8, .4, [64, 67, 69, 72]], [9.67, .4, [64, 67, 69, 73]], [12, .4, [65, 69, 72, 74]], [13.67, .4, [65, 67, 71, 74]], [16, 1.8, [60, 64, 67, 69, 74]]] }
+      ],
+      drums(h){
+        for (let b = 0; b < 16; b++){
+          h('ride', b, b % 2 ? 0.05 : 0.07);
+          if (b % 2){ h('ride', b + 0.67, 0.04); h('snare', b, 0.16); } else h('kick', b, 0.6);
+        }
+        h('snare', 15.33, 0.15); h('snare', 15.67, 0.19); h('kick', 16, 0.7); h('crash', 16, 0.12);
+      }
+    },
+    marimba: {
+      bpm: 132, end: 13.6, outro: 8,
+      parts: [
+        { inst: 'marimba', vol: 0.22, notes: [[0, .5, 77], [.5, .5, 81], [1, .5, 84], [1.5, .5, 81], [2, .5, 79], [2.5, .5, 77], [3, 1, 74], [4, .5, 82], [4.5, .5, 81], [5, .5, 79], [5.5, .5, 76], [6, .5, 79], [6.5, .5, 81], [7, 1, 79], [8, .5, 77], [8.5, .5, 81], [9, .5, 84], [9.5, .5, 86], [10, .5, 84], [10.5, .5, 82], [11, .25, 81], [11.25, .25, 79], [11.5, .5, 76], [12, 1.5, 77]] },
+        { inst: 'glock', vol: 0.07, notes: [[0, .5, 89], [4, .5, 94], [8, .5, 89], [12, 1.5, [89, 93]]] },
+        { inst: 'bass', vol: 0.26, notes: [[0, .9, 41], [1, .9, 48], [2, .9, 41], [3, .9, 48], [4, .9, 46], [5, .9, 53], [6, .9, 48], [7, .9, 43], [8, .9, 41], [9, .9, 45], [10, .9, 48], [11, .9, 36], [12, 1.5, 41]] },
+        { inst: 'pluck', vol: 0.05, notes: [[.5, .4, [65, 69, 72]], [1.5, .4, [65, 69, 72]], [2.5, .4, [65, 69, 72]], [3.5, .4, [65, 69, 72]], [4.5, .4, [65, 70, 74]], [5.5, .4, [65, 70, 74]], [6.5, .4, [64, 67, 70]], [7.5, .4, [64, 67, 70]], [8.5, .4, [65, 69, 72]], [9.5, .4, [65, 69, 72]], [10.5, .4, [65, 70, 74]], [11.5, .4, [64, 67, 70]], [12, 1.5, [65, 69, 72, 77]]] }
+      ],
+      drums(h){
+        for (let b = 0; b < 12; b += 0.5) h('shaker', b, b % 1 ? 0.025 : 0.035);
+        for (let b = 0; b < 12; b++){ if (b % 2) h('clap', b, 0.07); else h('kick', b, 0.35); }
+        h('kick', 12, 0.45);
+      }
+    },
+    funk: {
+      bpm: 116, end: 13.2, outro: 8,
+      parts: [
+        { inst: 'slap', vol: 0.3, notes: funkBar(0).concat(funkBar(4), [[8, .25, 40], [8.75, .25, 40], [9, .25, 52], [9.5, .25, 50], [10, .25, 47], [10.5, .25, 45], [11, .25, 43], [11.5, .25, 42], [12, 1, 40]]) },
+        { inst: 'clav', vol: 0.06, notes: [0, 4, 8].flatMap(o => [[o + .5, .2, [64, 67, 71, 74]], [o + 1.25, .2, [64, 67, 71, 74]], [o + 2.5, .2, [64, 67, 71, 74]], [o + 3.25, .2, [64, 67, 71, 74]]]) },
+        { inst: 'horn', vol: 0.07, notes: [[4, .5, 76], [4.75, .25, 79], [5.25, .5, 81], [6, .25, 79], [6.5, .5, 76], [7, .75, 74], [8, .5, 76], [8.75, .25, 79], [9, .5, 83], [10, .5, 81], [10.75, .25, 79], [11, .5, 76], [11.5, .5, 74], [12, 1, [64, 67, 71, 74, 79]]] }
+      ],
+      drums(h){
+        for (let bar = 0; bar < 3; bar++){
+          const o = bar * 4;
+          [0, 0.75, 2.5].forEach(x => h('kick', o + x, 0.6));
+          [1, 3].forEach(x => h('snare', o + x, 0.22));
+          for (let x = 0; x < 4; x += 0.25){ if (x !== 3.5) h('hat', o + x, (x * 4) % 2 ? 0.025 : 0.045); }
+          h('ohat', o + 3.5, 0.05);
+        }
+        h('kick', 12, 0.7); h('crash', 12, 0.12);
+      }
+    },
+    surf: {
+      bpm: 200, end: 17, outro: 8,
+      parts: [
+        { inst: 'guitar', vol: 0.05, notes: [[0, .5, 69], [.5, .5, 69], [1, .5, 72], [1.5, .5, 69], [2, .5, 74], [2.5, .5, 72], [3, .5, 69], [3.5, .5, 67], [4, .5, 65], [4.5, .5, 65], [5, .5, 69], [5.5, .5, 65], [6, .5, 72], [6.5, .5, 69], [7, 1, 64], [8, .5, 69], [8.5, .5, 69], [9, .5, 72], [9.5, .5, 69], [10, .5, 76], [10.5, .5, 74], [11, .5, 72], [11.5, .5, 74], [12, .5, 76], [12.5, .5, 77], [13, .5, 76], [13.5, .5, 74], [14, .5, 72], [14.5, .5, 71], [15, 1, 69], [16, 1, [57, 64, 69]]] },
+        { inst: 'bass', vol: 0.3, notes: eighths(0, 8, 45).concat(eighths(4, 4, 41), eighths(6, 4, 40), eighths(8, 8, 45), eighths(12, 4, 50), eighths(14, 4, 40), [[16, 1, 33]]) }
+      ],
+      drums(h){
+        for (let b = 0; b < 16; b++){
+          h('kick', b, b % 2 ? 0.35 : 0.55);
+          if (b % 2) h('snare', b, 0.22);
+          h('hat', b, 0.04); h('hat', b + 0.5, 0.03);
+        }
+        [15, 15.25, 15.5, 15.75].forEach((b, i) => h('snare', b, 0.12 + i * 0.03));
+        h('kick', 16, 0.7); h('crash', 16, 0.14);
+      }
+    },
+    space: {
+      bpm: 116, end: 14, outro: 8,
+      parts: [
+        { inst: 'arp', vol: 0.05, notes: arp16(0, 8, [60, 64, 66, 71]).concat(arp16(8, 4, [56, 60, 62, 67])) },
+        { inst: 'theremin', vol: 0.09, notes: [[0, 2, 72], [2, 2, 78], [4, 1.5, 76], [5.5, .5, 74], [6, 2, 71], [8, 2, 80], [10, 2, 79], [12, 2, 84]] },
+        { inst: 'sub', vol: 0.3, notes: [[0, .8, 36], [2.5, .8, 36], [4, .8, 36], [6.5, .8, 36], [8, .8, 32], [10.5, .8, 32], [12, 2, 36]] },
+        { inst: 'pad', vol: 0.035, notes: [[0, 8, [60, 64, 71]], [8, 4, [56, 63, 67]], [12, 2, [60, 66, 71, 76]]] }
+      ],
+      drums(h){
+        for (let b = 1; b < 12; b += 2) h('rim', b, 0.06);
+        [0, 2.5, 4, 6.5, 8, 10.5].forEach(b => h('kick', b, 0.25));
+        h('bloop', 12, 0.12);
+      }
+    },
+    baroque: {
+      bpm: 138, end: 15.6, outro: 9,
+      parts: [
+        { inst: 'harpsi', vol: 0.07, notes: [[0, .5, 74], [.5, .5, 76], [1, .5, 78], [1.5, .5, 79], [2, .5, 81], [2.5, .5, 78], [3, .5, 79], [3.5, .5, 76], [4, .5, 78], [4.5, .5, 74], [5, 1, 73], [6, .5, 71], [6.5, .5, 73], [7, .5, 74], [7.5, .5, 76], [8, .5, 78], [8.5, .5, 74], [9, .5, 76], [9.5, .5, 73], [10, .5, 74], [10.5, .5, 71], [11, 1, 69], [12, .5, 76], [12.5, .25, 74], [12.75, .25, 76], [13, 1, 73], [14, 1.5, 74]] },
+        { inst: 'harpsi', vol: 0.06, notes: [[0, 1, 50], [1, 1, 54], [2, 1, 57], [3, 1, 55], [4, 1, 52], [5, 1, 57], [6, 1, 47], [7, 1, 50], [8, 1, 54], [9, 1, 43], [10, 1, 45], [11, 1, 45], [12, 1, 45], [13, 1, 45], [14, 1.5, [38, 50]]] }
+      ],
+      drums: null
+    },
+    wafu: {
+      bpm: 132, end: 17.6, outro: 12,
+      parts: [
+        { inst: 'shami', vol: 0.13, notes: [[4, .5, 74], [4.5, .5, 76], [5, .5, 79], [5.5, .25, 81], [5.75, .25, 79], [6, .5, 76], [6.5, .5, 74], [7, 1, 76], [8, .5, 79], [8.5, .5, 81], [9, .5, 83], [9.5, .5, 81], [10, .5, 79], [10.5, .5, 76], [11, 1, 74], [12, .5, 76], [12.5, .5, 79], [13, .25, 81], [13.25, .25, 83], [13.5, .5, 86], [14, .5, 83], [14.5, .5, 81], [15, .5, 79], [15.5, .5, 76], [16, 1.5, 74]] },
+        { inst: 'shami', vol: 0.1, notes: [[4, 1, 50], [6, 1, 50], [8, 1, 55], [10, 1, 50], [12, 1, 57], [14, 1, 52], [16, 1.5, [50, 62]]] }
+      ],
+      drums(h){
+        [0, 1, 1.75, 2.25, 2.6, 2.85, 3.05, 3.2].forEach(b => h('hyoshigi', b, 0.35));
+        [4, 5.5, 6, 8, 9.5, 10, 12, 13.5, 14, 15, 15.5, 16].forEach(b => h('taiko', b, 0.55));
+        [7, 11, 15].forEach(b => h('kane', b, 0.06));
+      }
+    }
+  };
+
+  /* ---------- 要素と状態 ---------- */
+  const $ = id => document.getElementById(id);
+  const el = {
+    round: $('round'), score: $('score'), combo: $('combo'), mute: $('mute'), laughFill: $('laughFill'),
+    stage: $('stage'), flash: $('flash'), mekuriText: $('mekuriText'),
+    bokeBubble: $('bokeBubble'), bokeText: $('bokeText'), tsukBubble: $('tsukBubble'), tsukText: $('tsukText'),
+    sfx: $('sfx'), bokeChar: $('bokeChar'), tsukChar: $('tsukChar'), audience: $('audience'),
+    popup: $('popup'), popRank: $('popRank'), popPts: $('popPts'), popNote: $('popNote'), popHint: $('popHint'),
+    apop: $('apop'), apRank: $('apRank'), apNote: $('apNote'),
+    cue: $('cue'), cueText: $('cueText'), timer: $('timer'), zones: $('zones'), needle: $('needle'),
+    pad: $('pad'), idle: $('idle'), opts: Array.from(document.querySelectorAll('#opts .opt')),
+    aizBtn: $('aizBtn'), aizWord: $('aizWord'), finaleBtn: $('finaleBtn'),
+    overlay: $('overlay'), panel: $('panel')
+  };
+
+  function load(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function store(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+  const loadBest = id => parseInt(load(BEST_PREFIX + id) || '0', 10) || 0;
+
+  let C = COMBOS[0];
+  let runId = 0;
+  let G = null;
+  let win = null;
+  let early = null;
+  let currentOpts = [];
+  let audTimer = 0;
+  let muted = load(MUTE_KEY) === '1';
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const alive = id => id === runId;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const fmt = n => n.toLocaleString('ja-JP');
+  function shuffle(arr){
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function restart(node, cls){ node.classList.remove(cls); void node.getBoundingClientRect(); node.classList.add(cls); }
+  function vibrate(ms){ try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {} }
+
+  /* ---------- 効果音（Web Audioで合成） ---------- */
+  let actx = null, noiseBuf = null, out = null;
+  function audioInit(){
+    if (!actx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      try { actx = new AC(); } catch (e) { actx = null; return; }
+      out = actx.createGain();
+      out.gain.value = muted ? 0 : 1;
+      out.connect(actx.destination);
+      const len = Math.floor(actx.sampleRate);
+      noiseBuf = actx.createBuffer(1, len, actx.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    }
+    if (actx.state === 'suspended'){ const p = actx.resume(); if (p && p.catch) p.catch(() => {}); }
+  }
+  const canPlay = () => !!actx && !muted;
+  function env(g, t, peak, a, d){
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + a);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
+  }
+  function tone(type, f0, f1, t, dur, peak){
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(f0, t);
+    if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    env(g, t, peak, 0.005, dur);
+    o.connect(g); g.connect(out);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  function burst(t, dur, freq, q, peak, offset){
+    const s = actx.createBufferSource(); s.buffer = noiseBuf;
+    const f = actx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+    const g = actx.createGain(); env(g, t, peak, 0.003, dur);
+    s.connect(f); f.connect(g); g.connect(out);
+    s.start(t, offset || 0, dur + 0.05);
+  }
+  function blip(who){
+    if (!canPlay()) return;
+    const f = (who === 'boke' ? 400 : 540) + Math.random() * 60;
+    tone('square', f, f, actx.currentTime, 0.04, 0.022);
+  }
+  function slap(power){
+    if (!canPlay()) return;
+    const t = actx.currentTime;
+    burst(t, 0.16, 2200, 0.7, 0.6 * power, Math.random() * 0.6);
+    tone('sine', 190, 55, t, 0.15, 0.45 * power);
+  }
+  function crowd(rank){
+    if (!canPlay()) return;
+    const lvl = [0, 0, 0.35, 0.65, 1][rank];
+    if (!lvl) return;
+    const t = actx.currentTime, dur = 0.5 + lvl * 0.9;
+    const s = actx.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+    const f = actx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 750; f.Q.value = 0.6;
+    const am = actx.createGain(); am.gain.value = 0.55;
+    const lfo = actx.createOscillator(); lfo.frequency.value = 5.5 + Math.random() * 1.5;
+    const lg = actx.createGain(); lg.gain.value = 0.45;
+    const g = actx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.3 * lvl, t + 0.08);
+    g.gain.setValueAtTime(0.3 * lvl, t + dur * 0.45);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    lfo.connect(lg); lg.connect(am.gain);
+    s.connect(f); f.connect(am); am.connect(g); g.connect(out);
+    s.start(t); lfo.start(t);
+    s.stop(t + dur + 0.05); lfo.stop(t + dur + 0.05);
+  }
+  function chime(n){
+    if (!canPlay()) return;
+    const f = 660 * Math.pow(2, Math.min(n, 10) / 12);
+    tone('triangle', f, f, actx.currentTime, 0.25, 0.12);
+  }
+  function boo(){
+    if (!canPlay()) return;
+    tone('triangle', 300, 120, actx.currentTime, 0.55, 0.18);
+  }
+  function pon(rank){
+    if (!canPlay() || rank <= 0) return;
+    const t = actx.currentTime;
+    if (rank === 1){ tone('square', 150, 110, t, 0.14, 0.05); return; }
+    const f = [0, 0, 620, 820, 1050][rank];
+    tone('sine', f, f * 0.97, t, 0.08, 0.2);
+    burst(t, 0.015, 2600, 1.5, 0.12, 0);
+  }
+  function applause(dur, n){
+    if (!canPlay()) return;
+    const t0 = actx.currentTime;
+    for (let i = 0; i < n; i++) burst(t0 + Math.random() * dur, 0.05, 1200 + Math.random() * 1800, 1.2, 0.05 + Math.random() * 0.1, Math.random() * 0.8);
+  }
+
+  /* ---------- 出囃子の演奏 ---------- */
+  const midiHz = m => 440 * Math.pow(2, (m - 69) / 12);
+  function tuneLength(id, part){ const T = TUNES[id]; return (T.end - (part === 'outro' ? T.outro : 0)) * 60 / T.bpm; }
+  function makeSynth(master){
+    const buses = {};
+    const filt = (type, freq, q) => { const f = actx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q || 0.7; return f; };
+    const bus = name => {
+      if (buses[name]) return buses[name];
+      let node;
+      if (name === 'guitar'){
+        node = actx.createWaveShaper();
+        const curve = new Float32Array(1024);
+        for (let i = 0; i < 1024; i++){ const x = i / 511.5 - 1; curve[i] = Math.tanh(x * 4); }
+        node.curve = curve;
+        const lp = filt('lowpass', 3200); node.connect(lp); lp.connect(master);
+      } else {
+        const spec = { brass: ['lowpass', 2600], stab: ['lowpass', 1900], pad: ['lowpass', 900], harpsi: ['highpass', 220], shami: ['bandpass', 1500, 1.1] }[name];
+        node = filt(spec[0], spec[1], spec[2]); node.connect(master);
+      }
+      buses[name] = node;
+      return node;
+    };
+    const osc = (type, f, s, dur, peak, dest, o) => {
+      o = o || {};
+      const x = actx.createOscillator(), g = actx.createGain();
+      x.type = type;
+      if (o.bend){ x.frequency.setValueAtTime(f * o.bend, s); x.frequency.exponentialRampToValueAtTime(f, s + 0.04); }
+      else x.frequency.setValueAtTime(f, s);
+      if (o.detune) x.detune.value = o.detune;
+      const a = o.a || 0.008;
+      g.gain.setValueAtTime(0.0001, s);
+      g.gain.exponentialRampToValueAtTime(peak, s + a);
+      let endT;
+      if (o.decay){
+        endT = s + a + o.decay;
+        g.gain.exponentialRampToValueAtTime(0.0001, endT);
+      } else {
+        endT = s + Math.max(dur, a + 0.04);
+        g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak * (o.sus || 0.6)), s + Math.max(a + 0.02, (endT - s) * 0.5));
+        g.gain.exponentialRampToValueAtTime(0.0001, endT);
+      }
+      x.connect(g); g.connect(dest);
+      x.start(s); x.stop(endT + 0.05);
+    };
+    const nz = (s, dur, type, freq, q, peak) => {
+      const src = actx.createBufferSource(); src.buffer = noiseBuf;
+      const f = filt(type, freq, q);
+      const g = actx.createGain();
+      g.gain.setValueAtTime(0.0001, s);
+      g.gain.exponentialRampToValueAtTime(peak, s + 0.004);
+      g.gain.exponentialRampToValueAtTime(0.0001, s + dur);
+      src.connect(f); f.connect(g); g.connect(master);
+      src.start(s, Math.random() * 0.5, dur + 0.05);
+    };
+    const drop = (s, f0, f1, t, peak) => {
+      const x = actx.createOscillator(), g = actx.createGain();
+      x.type = 'sine';
+      x.frequency.setValueAtTime(f0, s); x.frequency.exponentialRampToValueAtTime(f1, s + t);
+      g.gain.setValueAtTime(0.0001, s); g.gain.exponentialRampToValueAtTime(peak, s + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, s + t * 1.5);
+      x.connect(g); g.connect(master);
+      x.start(s); x.stop(s + t * 1.5 + 0.05);
+    };
+    return {
+      brass: (f, s, d, v) => { osc('sawtooth', f, s, d, v, bus('brass'), { detune: -7 }); osc('sawtooth', f, s, d, v, bus('brass'), { detune: 7 }); },
+      stab: (f, s, d, v) => osc('sawtooth', f, s, d, v, bus('stab')),
+      horn: (f, s, d, v) => { osc('sawtooth', f, s, d, v, bus('brass'), { detune: -9, a: 0.02 }); osc('sawtooth', f, s, d, v, bus('brass'), { detune: 9, a: 0.02 }); },
+      bass: (f, s, d, v) => { osc('triangle', f, s, d, v, master); osc('sine', f / 2, s, d, v * 0.35, master); },
+      sub: (f, s, d, v) => osc('sine', f, s, d, v, master, { a: 0.01, sus: 0.8 }),
+      marimba: (f, s, d, v) => { osc('sine', f, s, d, v, master, { a: 0.003, decay: 0.38 }); osc('sine', f * 4, s, d, v * 0.18, master, { a: 0.002, decay: 0.1 }); },
+      glock: (f, s, d, v) => { osc('sine', f, s, d, v, master, { a: 0.002, decay: 0.9 }); osc('sine', f * 2.76, s, d, v * 0.3, master, { a: 0.002, decay: 0.35 }); },
+      pluck: (f, s, d, v) => osc('triangle', f, s, d, v, master, { a: 0.004, decay: 0.28 }),
+      clav: (f, s, d, v) => osc('square', f, s, d, v, bus('stab'), { a: 0.003, decay: 0.13 }),
+      slap: (f, s, d, v) => {
+        const x = actx.createOscillator(), lp = filt('lowpass', 2400, 6), g = actx.createGain();
+        const len = Math.max(0.12, d);
+        x.type = 'square'; x.frequency.setValueAtTime(f, s);
+        lp.frequency.setValueAtTime(2400, s); lp.frequency.exponentialRampToValueAtTime(400, s + 0.14);
+        g.gain.setValueAtTime(0.0001, s); g.gain.exponentialRampToValueAtTime(v, s + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, s + len);
+        x.connect(lp); lp.connect(g); g.connect(master);
+        x.start(s); x.stop(s + len + 0.05);
+      },
+      guitar: (f, s, d, v) => { osc('sawtooth', f, s, d, v, bus('guitar'), { detune: -10, sus: 0.8 }); osc('sawtooth', f * 1.004, s, d, v, bus('guitar'), { detune: 10, sus: 0.8 }); },
+      arp: (f, s, d, v) => osc('triangle', f, s, d, v, master, { a: 0.004, decay: 0.16 }),
+      pad: (f, s, d, v) => { osc('sawtooth', f, s, d, v, bus('pad'), { a: 0.3, detune: -6, sus: 0.9 }); osc('sawtooth', f, s, d, v, bus('pad'), { a: 0.3, detune: 6, sus: 0.9 }); },
+      harpsi: (f, s, d, v) => { osc('sawtooth', f, s, d, v, bus('harpsi'), { a: 0.002, decay: 0.55 }); osc('square', f * 2, s, d, v * 0.25, bus('harpsi'), { a: 0.002, decay: 0.25 }); },
+      shami: (f, s, d, v) => { osc('sawtooth', f, s, d, v, bus('shami'), { a: 0.002, decay: 0.34, bend: 1.03 }); nz(s, 0.02, 'highpass', 3000, 0.7, v * 0.5); },
+      theremin: (notes, at, beat, v) => {
+        if (!notes.length) return;
+        const x = actx.createOscillator(), g = actx.createGain(), lfo = actx.createOscillator(), lg = actx.createGain();
+        x.type = 'sine'; lfo.frequency.value = 5.5; lg.gain.value = 28;
+        lfo.connect(lg); lg.connect(x.detune);
+        const s0 = at(notes[0][0]);
+        const last = notes[notes.length - 1];
+        const sEnd = at(last[0]) + last[1] * beat;
+        x.frequency.setValueAtTime(midiHz(notes[0][2]), s0);
+        notes.forEach((n, i) => { if (i) x.frequency.setTargetAtTime(midiHz(n[2]), at(n[0]), 0.06); });
+        g.gain.setValueAtTime(0.0001, s0);
+        g.gain.exponentialRampToValueAtTime(v, s0 + 0.15);
+        g.gain.setValueAtTime(v, Math.max(s0 + 0.2, sEnd - 0.35));
+        g.gain.exponentialRampToValueAtTime(0.0001, sEnd);
+        x.connect(g); g.connect(master);
+        x.start(s0); lfo.start(s0); x.stop(sEnd + 0.05); lfo.stop(sEnd + 0.05);
+      },
+      drum: (type, s, v) => {
+        if (type === 'kick') drop(s, 130, 48, 0.12, v);
+        else if (type === 'snare') nz(s, 0.12, 'bandpass', 1800, 0.8, v);
+        else if (type === 'hat') nz(s, 0.04, 'highpass', 7500, 0.7, v);
+        else if (type === 'ohat') nz(s, 0.22, 'highpass', 7000, 0.7, v);
+        else if (type === 'ride') nz(s, 0.06, 'highpass', 6500, 0.8, v);
+        else if (type === 'shaker') nz(s, 0.06, 'highpass', 5000, 0.6, v);
+        else if (type === 'clap'){ nz(s, 0.05, 'bandpass', 1300, 1, v); nz(s + 0.012, 0.05, 'bandpass', 1300, 1, v); nz(s + 0.024, 0.07, 'bandpass', 1300, 1, v); }
+        else if (type === 'crash') nz(s, 1.3, 'highpass', 5000, 0.5, v);
+        else if (type === 'rim') osc('square', 1700, s, 0.03, v, master, { a: 0.001, decay: 0.03 });
+        else if (type === 'taiko'){ drop(s, 95, 52, 0.28, v); nz(s, 0.06, 'lowpass', 400, 0.7, v * 0.5); }
+        else if (type === 'hyoshigi'){ osc('sine', 2100, s, 0.05, v, master, { a: 0.001, decay: 0.06 }); osc('sine', 3300, s, 0.05, v * 0.5, master, { a: 0.001, decay: 0.04 }); nz(s, 0.015, 'highpass', 2500, 0.7, v * 0.8); }
+        else if (type === 'kane'){ osc('sine', 2400, s, 0.6, v, master, { a: 0.002, decay: 0.7 }); osc('sine', 3560, s, 0.4, v * 0.6, master, { a: 0.002, decay: 0.45 }); }
+        else if (type === 'bloop'){
+          const x = actx.createOscillator(), g = actx.createGain();
+          x.type = 'sine'; x.frequency.setValueAtTime(900, s); x.frequency.exponentialRampToValueAtTime(160, s + 0.4);
+          g.gain.setValueAtTime(0.0001, s); g.gain.exponentialRampToValueAtTime(v, s + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, s + 0.5);
+          x.connect(g); g.connect(master); x.start(s); x.stop(s + 0.55);
+        }
+      }
+    };
+  }
+  function playTune(id, part){
+    const T = TUNES[id];
+    const len = tuneLength(id, part);
+    if (!canPlay()) return len;
+    const first = part === 'outro' ? T.outro : 0;
+    const beat = 60 / T.bpm;
+    const t0 = actx.currentTime + 0.06;
+    const at = b => t0 + (b - first) * beat;
+    const master = actx.createGain(); master.gain.value = 0.5;
+    const comp = actx.createDynamicsCompressor();
+    master.connect(comp); comp.connect(out);
+    const S = makeSynth(master);
+    T.parts.forEach(p => {
+      const notes = p.notes.filter(n => n[0] >= first);
+      if (p.inst === 'theremin'){ S.theremin(notes, at, beat, p.vol); return; }
+      notes.forEach(n => (Array.isArray(n[2]) ? n[2] : [n[2]]).forEach(m => S[p.inst](midiHz(m), at(n[0]), n[1] * beat, p.vol)));
+    });
+    if (T.drums) T.drums((type, b, v) => { if (b >= first) S.drum(type, at(b), v); });
+    return len;
+  }
+
+  /* ---------- 声（端末の読み上げ機能） ---------- */
+  function speechText(s){
+    return s.replace(/（[^）]*）/g, '')
+      .replace(/[「」『』・]/g, '')
+      .replace(/〜/g, 'ー')
+      .replace(/…+/g, '、')
+      .replace(/^[、\s]+/, '')
+      .trim();
+  }
+  function charWeight(c){
+    if (/[、。！？!?]/.test(c)) return 2.2;
+    if (c === '…') return 1.5;
+    if (/[（）「」『』・\s]/.test(c)) return 0.3;
+    if (/[ゃゅょャュョぁぃぅぇぉァィゥェォ]/.test(c)) return 0.3;
+    if (/[\u4e00-\u9fff]/.test(c)) return 1.7;
+    return 1;
+  }
+  const Voice = (() => {
+    const synth = window.speechSynthesis;
+    const ok = !!synth && typeof window.SpeechSynthesisUtterance === 'function';
+    const MALE = /otoya|hattori|ichiro|keita|daichi|naoki|male|男性/i;
+    const FEMALE = /kyoko|o-ren|haruka|ayumi|nanami|sayaka|mizuki|google|female|女性/i;
+    const keep = new Set();
+    let pool = [], males = [], females = [];
+    let noJa = false, verified = false, broken = false, fails = 0;
+    let wanted = ['m', 'm'];
+    const cast = { boke: null, tsuk: null };
+    const adj = { boke: 1, tsuk: 1 };
+    const isM = v => MALE.test(v.name) && !FEMALE.test(v.name);
+    const isF = v => FEMALE.test(v.name) && !MALE.test(v.name);
+    function choose(sex, avoid){
+      const pref = sex === 'f' ? females : males;
+      const v = pref.find(x => x !== avoid) || pref[0] || pool.find(x => x !== avoid) || pool[0] || null;
+      let a = 1;
+      if (v && sex === 'f' && isM(v)) a = 1.3;
+      if (v && sex === 'm' && isF(v)) a = 0.78;
+      return { v, a };
+    }
+    function applyCast(){
+      const b = choose(wanted[0], null);
+      const t = choose(wanted[1], b.v);
+      cast.boke = b.v; adj.boke = b.a;
+      cast.tsuk = t.v; adj.tsuk = t.a * (t.v && t.v === b.v && wanted[0] === wanted[1] ? 0.88 : 1);
+    }
+    function pick(){
+      let all = [];
+      try { all = synth.getVoices() || []; } catch (e) { all = []; }
+      if (!all.length) return;
+      const ja = all.filter(v => /^ja([-_]|$)/i.test(v.lang || ''));
+      noJa = ja.length === 0;
+      if (noJa) return;
+      const local = ja.filter(v => v.localService);
+      pool = local.length ? local : ja;
+      males = pool.filter(isM);
+      females = pool.filter(isF);
+      applyCast();
+    }
+    if (ok){
+      pick();
+      try { synth.addEventListener('voiceschanged', () => { pick(); onVoiceState(); }); } catch (e) {}
+    }
+    const usable = () => ok && !noJa && !broken;
+    const enabled = () => usable() && !muted;
+    function setCast(bokeSex, tsukSex){ wanted = [bokeSex, tsukSex]; if (pool.length) applyCast(); }
+    function stop(){ if (ok){ try { synth.cancel(); } catch (e) {} } }
+    function unlock(){
+      if (!enabled()) return;
+      try {
+        const u = new SpeechSynthesisUtterance('あ');
+        u.lang = 'ja-JP'; u.volume = 0; u.rate = 2;
+        u.onstart = () => { verified = true; };
+        u.onend = u.onerror = () => { keep.delete(u); };
+        keep.add(u);
+        synth.speak(u);
+      } catch (e) {}
+    }
+    function say(text, who, rate, pitch, maxMs){
+      const t = speechText(text);
+      if (!enabled() || !t) return Promise.resolve(false);
+      return new Promise(resolve => {
+        let done = false, started = false, probe = 0, guard = 0;
+        const u = new SpeechSynthesisUtterance(t);
+        const finish = spoke => {
+          if (done) return;
+          done = true;
+          clearTimeout(probe); clearTimeout(guard);
+          keep.delete(u);
+          resolve(spoke);
+        };
+        u.lang = 'ja-JP';
+        if (cast[who]) u.voice = cast[who];
+        u.rate = rate;
+        u.pitch = clamp(pitch * adj[who], 0.1, 2);
+        u.volume = 1;
+        u.onstart = () => { started = true; verified = true; fails = 0; clearTimeout(probe); };
+        u.onend = () => finish(true);
+        u.onerror = e => {
+          const why = e && e.error;
+          if (!started && why !== 'interrupted' && why !== 'canceled'){
+            fails++;
+            if (fails >= 2){ broken = true; onVoiceState(); }
+          }
+          finish(false);
+        };
+        keep.add(u);
+        try {
+          if (synth.paused) synth.resume();
+          synth.speak(u);
+        } catch (e) { finish(false); return; }
+        if (!verified) probe = setTimeout(() => {
+          if (verified) return;
+          broken = true; stop(); onVoiceState(); finish(false);
+        }, 2500);
+        guard = setTimeout(() => finish(false), maxMs);
+      });
+    }
+    const status = () => (usable() ? 'ok' : 'none');
+    return { enabled, stop, unlock, say, status, setCast };
+  })();
+  function soundNoteText(){
+    return Voice.status() === 'ok' ? '出囃子・声・効果音が出ます（右上のボタンで消せます）' : 'この端末では読み上げの声が使えないため、出囃子と効果音だけ鳴ります';
+  }
+  function onVoiceState(){
+    const n = document.getElementById('soundNote');
+    if (n) n.textContent = soundNoteText();
+  }
+  const mouthTimers = new Map();
+  function mouthOn(ch){
+    mouthOff(ch);
+    let open = false;
+    mouthTimers.set(ch, setInterval(() => { open = !open; ch.classList.toggle('open', open); }, 120));
+  }
+  function mouthOff(ch){
+    const t = mouthTimers.get(ch);
+    if (t){ clearInterval(t); mouthTimers.delete(ch); }
+    ch.classList.remove('open');
+  }
+  function tsukkomiVoice(text, rate){
+    if (!Voice.enabled()){ mouthPop(el.tsukChar); return Promise.resolve(); }
+    mouthOn(el.tsukChar);
+    el.tsukChar.classList.add('talking');
+    return Voice.say(text, 'tsuk', rate, C.voice.tsuk.pitch, 3500).then(() => { mouthOff(el.tsukChar); el.tsukChar.classList.remove('talking'); });
+  }
+
+  /* ---------- 演者の絵（コンビごとに生成） ---------- */
+  const INK = '#1d120c';
+  const HAIR = {
+    spiky: c => `<path d="M31 48 Q30 20 60 21 Q91 20 89 48 Q85 34 78 37 Q74 24 66 32 Q60 21 53 32 Q45 25 41 38 Q35 36 31 48 Z" fill="${c}"/>`,
+    neat: c => `<path d="M31 50 Q28 20 60 20 Q92 20 89 50 Q86 36 76 33 Q64 40 44 33 Q34 38 31 50 Z" fill="${c}"/>`,
+    side: c => `<path d="M31 50 Q30 20 62 20 Q92 22 89 50 Q84 30 50 34 Q38 37 31 50 Z" fill="${c}"/>`,
+    bob: c => `<path d="M29 66 Q23 21 60 19 Q97 21 91 66 L84 66 Q87 40 78 35 Q68 42 60 35 Q52 42 42 35 Q33 40 36 66 Z" fill="${c}"/>`,
+    pony: c => `<path d="M31 48 Q30 21 60 20 Q90 21 89 46 Q80 31 60 30 Q42 31 31 48 Z" fill="${c}"/>`,
+    long: c => `<path d="M30 58 Q28 21 60 20 Q92 21 90 58 Q86 36 72 31 Q60 40 46 32 Q34 38 30 58 Z" fill="${c}"/>`,
+    bowl: c => `<path d="M30 58 Q27 17 60 17 Q93 17 90 58 L86 58 L86 45 L34 45 L34 58 Z" fill="${c}"/>`,
+    bun: c => `<path d="M32 46 Q32 24 60 24 Q88 24 88 46 Q78 33 60 33 Q42 33 32 46 Z" fill="${c}"/>`,
+    bald: c => `<path d="M31 60 Q28 44 36 39 L39 53 Z M89 60 Q92 44 84 39 L81 53 Z" fill="${c}"/><path d="M50 27 Q60 22 70 27" stroke="${c}" stroke-width="2" fill="none" stroke-linecap="round"/>`
+  };
+  const EYES = {
+    normal: `<circle cx="49" cy="52" r="3.6" fill="${INK}"/><circle cx="71" cy="52" r="3.6" fill="${INK}"/><circle cx="50.2" cy="50.8" r="1.1" fill="#fff"/><circle cx="72.2" cy="50.8" r="1.1" fill="#fff"/>`,
+    dots: `<circle cx="49" cy="53" r="2.5" fill="${INK}"/><circle cx="71" cy="53" r="2.5" fill="${INK}"/>`,
+    half: `<path d="M43 51 L55 51 M65 51 L77 51" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/><circle cx="49" cy="53.4" r="2" fill="${INK}"/><circle cx="71" cy="53.4" r="2" fill="${INK}"/>`,
+    smug: `<path d="M43 50 Q49 48 55 50 M65 50 Q71 48 77 50" stroke="${INK}" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="50" cy="53" r="2.6" fill="${INK}"/><circle cx="72" cy="53" r="2.6" fill="${INK}"/>`,
+    happy: `<path d="M44 54 Q49 48 54 54 M66 54 Q71 48 76 54" stroke="${INK}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`
+  };
+  const MOUTH = { smile: 'M51 64 Q60 72 69 64', flat: 'M53 67 L67 67', smirk: 'M52 66 Q62 70 69 62' };
+  function charSVG(L, role){
+    const skin = L.skin || '#f3c9a2';
+    const acc = L.acc || [];
+    const has = a => acc.includes(a);
+    const kimono = has('kimono');
+    const b = [];
+    if (kimono){
+      b.push(`<path d="M30 118 L90 118 L94 171 L26 171 Z" fill="${L.suit}"/><path d="M60 118 L64 171" stroke="${L.dark}" stroke-width="1.5"/>`);
+      b.push(`<ellipse cx="50" cy="176" rx="9" ry="3.2" fill="#5a3a22"/><ellipse cx="70" cy="176" rx="9" ry="3.2" fill="#5a3a22"/>`);
+      b.push(`<rect x="44" y="169" width="11" height="6" rx="3" fill="#f5f5f5"/><rect x="65" y="169" width="11" height="6" rx="3" fill="#f5f5f5"/>`);
+    } else if (L.bottom === 'skirt'){
+      b.push(`<rect x="46" y="146" width="9" height="28" rx="4" fill="${skin}"/><rect x="65" y="146" width="9" height="28" rx="4" fill="${skin}"/>`);
+      b.push(`<ellipse cx="50" cy="176" rx="8" ry="3.5" fill="#151515"/><ellipse cx="70" cy="176" rx="8" ry="3.5" fill="#151515"/>`);
+      b.push(`<path d="M30 126 L90 126 L97 154 L23 154 Z" fill="${L.bottomColor}"/>`);
+    } else {
+      b.push(`<rect x="43" y="134" width="14" height="42" rx="6" fill="${L.bottomColor}"/><rect x="63" y="134" width="14" height="42" rx="6" fill="${L.bottomColor}"/>`);
+      b.push(`<ellipse cx="49" cy="176" rx="10" ry="4" fill="#151515"/><ellipse cx="71" cy="176" rx="10" ry="4" fill="#151515"/>`);
+    }
+    if (role === 'boke'){
+      b.push(`<rect x="15" y="92" width="14" height="42" rx="7" fill="${L.suit}" transform="rotate(14 22 94)"/><circle cx="13" cy="133" r="7" fill="${skin}"/>`);
+      b.push(`<g class="garm"><rect x="91" y="92" width="14" height="42" rx="7" fill="${L.suit}" transform="rotate(-24 98 94)"/><circle cx="114" cy="129" r="7" fill="${skin}"/></g>`);
+    } else {
+      b.push(`<rect x="91" y="92" width="14" height="42" rx="7" fill="${L.suit}" transform="rotate(-10 98 94)"/><circle cx="105" cy="134" r="7" fill="${skin}"/>`);
+      b.push(`<g class="arm"><rect x="16" y="92" width="14" height="42" rx="7" fill="${L.suit}"/><circle cx="23" cy="136" r="7.5" fill="${skin}"/></g>`);
+    }
+    b.push(`<path d="M26 96 Q60 74 94 96 L98 140 Q60 150 22 140 Z" fill="${L.suit}"/>`);
+    if (kimono){
+      b.push(`<path d="M47 82 L63 110 L68 110 L53 82 Z" fill="#fff"/><path d="M73 82 L60 101 L57 97 L67 82 Z" fill="#fff"/>`);
+      b.push(`<rect x="24" y="112" width="72" height="13" rx="2" fill="${L.obi}"/><rect x="54" y="110" width="12" height="17" rx="2" fill="${L.obiKnot || L.obi}" stroke="${L.dark}" stroke-width="1"/>`);
+    } else if (has('turtleneck')){
+      b.push(`<rect x="47" y="77" width="26" height="14" rx="6" fill="${L.suit}"/><path d="M49 82 L71 82 M49 86 L71 86" stroke="${L.dark}" stroke-width="1.2"/>`);
+    } else if (has('zip')){
+      b.push(`<path d="M49 82 L60 90 L71 82 L72 88 L60 96 L48 88 Z" fill="${L.dark}"/><path d="M60 96 L60 146" stroke="#e5e7eb" stroke-width="1.8"/>`);
+    } else {
+      b.push(`<path d="M49 84 L60 106 L71 84 Z" fill="${L.shirt || '#fff'}"/>`);
+      if (has('labcoat')) b.push(`<path d="M49 84 L58 114 L52 114 Z M71 84 L62 114 L68 114 Z" fill="#d6dbe1"/><path d="M76 122 L88 122" stroke="#b8bec6" stroke-width="1.5"/>`);
+      if (L.tie === 'bow') b.push(`<path d="M51 88 L60 93 L51 98 Z M69 88 L60 93 L69 98 Z" fill="${L.tieColor}"/><circle cx="60" cy="93" r="2.6" fill="${L.tieColor}"/>`);
+      else if (L.tie === 'neck') b.push(`<path d="M57.5 89 L62.5 89 L61.5 110 L60 114 L58.5 110 Z" fill="${L.tieColor}"/>`);
+      if (!has('labcoat')) b.push(`<circle cx="60" cy="118" r="2.2" fill="${L.dark}"/><circle cx="60" cy="129" r="2.2" fill="${L.dark}"/>`);
+    }
+    if (has('stripes')) b.push(`<path d="M40 101 L35 141 M80 101 L85 141" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`);
+
+    const h = [];
+    if (L.hairStyle === 'long') h.push(`<path d="M27 52 Q25 18 60 17 Q95 18 93 52 L97 94 Q86 100 78 90 L42 90 Q34 100 23 94 Z" fill="${L.hair}"/>`);
+    if (L.hairStyle === 'pony') h.push(`<path d="M84 30 Q106 36 100 76 Q93 62 82 46 Z" fill="${L.hair}"/>`);
+    if (L.hairStyle === 'bun') h.push(`<circle cx="60" cy="19" r="11" fill="${L.hair}"/>`);
+    h.push(`<circle cx="32" cy="54" r="5" fill="${skin}"/><circle cx="88" cy="54" r="5" fill="${skin}"/><circle cx="60" cy="52" r="28" fill="${skin}"/>`);
+    h.push((HAIR[L.hairStyle] || HAIR.neat)(L.hair));
+    const lashes = L.sex === 'f' && (L.eyes || 'normal') === 'normal' ? `<path d="M44.5 49 L42 46.5 M75.5 49 L78 46.5" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/>` : '';
+    h.push('<g class="eyes">' + (EYES[L.eyes] || EYES.normal) + lashes + '</g>');
+    if (L.brows === 'stern') h.push(`<path d="M42 42 L54 44 M78 42 L66 44" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/>`);
+    else if (L.brows === 'up') h.push(`<path d="M43 42 Q49 37 55 41 M65 41 Q71 37 77 42" stroke="${INK}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`);
+    else if (L.brows === 'flat') h.push(`<path d="M43 43 L55 43 M65 43 L77 43" stroke="${INK}" stroke-width="2.4" stroke-linecap="round"/>`);
+    if (L.glasses === 'round') h.push(`<circle cx="49" cy="53" r="7.2" fill="rgba(255,255,255,.25)" stroke="${INK}" stroke-width="2.4"/><circle cx="71" cy="53" r="7.2" fill="rgba(255,255,255,.25)" stroke="${INK}" stroke-width="2.4"/><path d="M56 53 L64 53" stroke="${INK}" stroke-width="2.4"/>`);
+    else if (L.glasses === 'square') h.push(`<rect x="40.5" y="47" width="17" height="12" rx="2" fill="rgba(255,255,255,.25)" stroke="${INK}" stroke-width="2.4"/><rect x="62.5" y="47" width="17" height="12" rx="2" fill="rgba(255,255,255,.25)" stroke="${INK}" stroke-width="2.4"/><path d="M57.5 53 L62.5 53" stroke="${INK}" stroke-width="2.4"/>`);
+    if (L.cheeks) h.push(`<ellipse cx="42" cy="62" rx="5" ry="3.2" fill="#f28b7a" opacity=".55"/><ellipse cx="78" cy="62" rx="5" ry="3.2" fill="#f28b7a" opacity=".55"/>`);
+    if (has('mustache')) h.push(`<path d="M49 61 Q55 57 60 61 Q65 57 71 61 Q65 65 60 62.5 Q55 65 49 61 Z" fill="${L.hair}"/>`);
+    h.push(`<path class="mouth-closed" d="${MOUTH[L.mouth] || MOUTH.smile}" stroke="${L.lips ? '#c0392b' : INK}" stroke-width="3" fill="none" stroke-linecap="round"/>`);
+    h.push(`<path class="mouth-open" d="M51 63 Q60 61 69 63 Q67 75 60 75 Q53 75 51 63 Z" fill="#7a1e1e"/>`);
+    if (has('flower')) h.push(`<g transform="translate(80 31)"><circle cx="0" cy="-4" r="3.4" fill="#f472b6"/><circle cx="3.8" cy="-1.2" r="3.4" fill="#f472b6"/><circle cx="2.4" cy="3.3" r="3.4" fill="#f472b6"/><circle cx="-2.4" cy="3.3" r="3.4" fill="#f472b6"/><circle cx="-3.8" cy="-1.2" r="3.4" fill="#f472b6"/><circle r="2.2" fill="#fde047"/></g>`);
+    if (has('sunglasses')) h.push(`<rect x="40" y="25" width="16" height="8" rx="4" fill="#111"/><rect x="64" y="25" width="16" height="8" rx="4" fill="#111"/><path d="M56 29 L64 29" stroke="#111" stroke-width="2"/>`);
+    if (has('headband')) h.push(`<rect x="31" y="35" width="58" height="7" rx="3" fill="${L.accColor || '#e8312a'}"/><path d="M87 38 L99 44 L96 48 Z M87 38 L100 37 L99 41 Z" fill="${L.accColor || '#e8312a'}"/>`);
+    if (has('cap')) h.push(`<path d="M30 42 Q31 15 60 15 Q89 15 90 42 Z" fill="${L.accColor || '#e8312a'}"/><path d="M33 41 Q60 49 87 41 L88 45 Q60 54 32 45 Z" fill="${L.accDark || '#9f1d18'}"/>`);
+    if (has('kanzashi')) h.push(`<path d="M64 15 L82 3" stroke="#8b5a2b" stroke-width="2" stroke-linecap="round"/><circle cx="82" cy="3" r="3.2" fill="#e8312a"/>`);
+    return `<g class="bob"><g class="body">${b.join('')}</g><g class="head">${h.join('')}</g></g>`;
+  }
+  function applyCombo(){
+    el.bokeChar.innerHTML = charSVG(C.look.boke, 'boke');
+    el.tsukChar.innerHTML = charSVG(C.look.tsuk, 'tsuk');
+    el.bokeChar.style.setProperty('--h', C.look.boke.h || 1);
+    el.tsukChar.style.setProperty('--h', C.look.tsuk.h || 1);
+    el.stage.dataset.move = C.move;
+    el.stage.style.setProperty('--spot', C.spot);
+    el.mekuriText.textContent = C.name;
+  }
+
+  /* ---------- 画面更新 ---------- */
+  function hud(bump){
+    if (!G) return;
+    el.score.textContent = fmt(G.score);
+    el.combo.textContent = String(G.combo);
+    el.laughFill.style.width = G.laugh + '%';
+    if (bump) restart(el.score, 'bump');
+  }
+  function setCue(text, go){
+    el.cueText.textContent = text;
+    el.cue.classList.remove('go');
+    if (go){ void el.cue.offsetWidth; el.cue.classList.add('go'); }
+  }
+  function setGauge(zones, limit){
+    el.zones.textContent = '';
+    zones.forEach(z => {
+      const i = document.createElement('i');
+      i.className = 'z ' + z[1];
+      i.style.flex = '0 0 ' + (z[0] / limit * 100).toFixed(2) + '%';
+      if (z[2]) i.dataset.label = z[2];
+      el.zones.appendChild(i);
+    });
+    el.needle.style.left = '0%';
+  }
+  // 合いの手は「言い終わってひと呼吸」が最適。早すぎても遅すぎても減点
+  function aizSpec(gs, ge){
+    const yEnd = ge + 0.35, oEnd = yEnd + 0.45, limit = oEnd + 0.6;
+    return { gs, ge, yEnd, oEnd, limit, zones: [[0.1, 'o'], [gs - 0.1, 'y'], [ge - gs, 'g', 'ええ間'], [yEnd - ge, 'y'], [oEnd - yEnd, 'o'], [limit - oEnd, 'r']] };
+  }
+  function setPad(mode){ el.pad.dataset.mode = mode; }
+  function setIdle(t){ el.idle.textContent = t; }
+  function setOptions(list){
+    currentOpts = list ? shuffle(list).map(o => ({ text: o[0], fit: o[1] })) : [];
+    el.opts.forEach((b, i) => {
+      b.className = list ? 'opt armed' : 'opt locked';
+      b.textContent = list ? currentOpts[i].text : '';
+    });
+  }
+  function mouthPop(ch){ ch.classList.add('open'); setTimeout(() => ch.classList.remove('open'), 320); }
+  function showTsuk(text){
+    el.tsukText.textContent = text;
+    el.tsukBubble.classList.remove('hide');
+    restart(el.tsukBubble, 'say');
+  }
+
+  async function speak(who, text, speed, id, append, vo){
+    const box = who === 'boke' ? el.bokeText : el.tsukText;
+    const ch = who === 'boke' ? el.bokeChar : el.tsukChar;
+    (who === 'boke' ? el.bokeBubble : el.tsukBubble).classList.remove('hide');
+    if (!append) box.textContent = '';
+    else if (box.textContent) box.textContent += '\n';
+    const o = vo || {};
+    const voiced = !o.silent && Voice.enabled();
+    const unit = 95 / (o.rate || 1.1);
+    let ended = false, voiceDone = null;
+    ch.classList.add('talking');
+    if (voiced){
+      let est = 300;
+      for (const c of text) est += charWeight(c) * unit;
+      voiceDone = Voice.say(text, who, o.rate || 1.1, o.pitch || 1, est * 1.8 + 1500).then(() => { ended = true; });
+      mouthOn(ch);
+    }
+    let n = 0;
+    for (const c of text){
+      if (!alive(id)) break;
+      box.textContent += c;
+      if (voiced){
+        if (!ended) await sleep(charWeight(c) * unit);
+        continue;
+      }
+      const quiet = QUIET.test(c);
+      if (!quiet) n++;
+      ch.classList.toggle('open', !quiet && n % 2 === 1);
+      if (!quiet && n % 2 === 1 && !o.silent) blip(who);
+      await sleep(c === '、' ? speed * 4 : (PAUSE.test(c) ? speed * 5 : speed));
+    }
+    if (voiceDone && alive(id)) await voiceDone;
+    mouthOff(ch);
+    ch.classList.remove('talking');
+  }
+
+  function buildAudience(){
+    el.audience.textContent = '';
+    for (let i = 0; i < AUD_N; i++){ const s = document.createElement('span'); s.textContent = '🙂'; el.audience.appendChild(s); }
+  }
+  function audience(rank){
+    const f = FACES[rank];
+    Array.from(el.audience.children).forEach(s => {
+      s.textContent = f[Math.floor(Math.random() * f.length)];
+      s.classList.remove('jump', 'jump2');
+      if (rank >= 2){
+        s.style.animationDelay = (Math.random() * 0.18).toFixed(2) + 's';
+        void s.offsetWidth;
+        s.classList.add(rank === 4 ? 'jump2' : 'jump');
+      }
+    });
+    clearTimeout(audTimer);
+    audTimer = setTimeout(settleAudience, 1500);
+  }
+  function settleAudience(){
+    const l = G ? G.laugh : 30;
+    const face = l >= 70 ? '😄' : (l >= 35 ? '🙂' : '😐');
+    Array.from(el.audience.children).forEach(s => { s.textContent = face; });
+  }
+
+  function popup(rank, pts, bonus, note, hint){
+    el.popup.style.setProperty('--rank-color', RANKS[rank].color);
+    el.popRank.textContent = RANKS[rank].label;
+    el.popPts.textContent = '+' + pts + (bonus ? '　' + G.combo + 'コンボ！' : '');
+    el.popNote.textContent = note;
+    el.popHint.textContent = hint;
+    el.popHint.hidden = !hint;
+    restart(el.popup, 'show');
+  }
+  function miniPopup(rank, pts, bonus, note){
+    el.apop.style.setProperty('--rank-color', RANKS[rank].color);
+    el.apRank.textContent = RANKS[rank].label + ' +' + pts;
+    el.apNote.textContent = note + (bonus ? '（' + G.combo + 'コンボ）' : '');
+    restart(el.apop, 'show');
+  }
+
+  function react(rank, bonus, after){
+    if (rank > 0){
+      restart(el.tsukChar, 'lunge');
+      el.bokeChar.classList.remove('hit', 'hit-big');
+      restart(el.bokeChar, rank >= 3 ? 'hit-big' : 'hit');
+      el.sfx.textContent = RANKS[rank].sfx;
+      el.sfx.style.setProperty('--c', RANKS[rank].color);
+      restart(el.sfx, 'show');
+      slap(0.35 + rank * 0.16);
+      if (rank >= 2) (after || sleep(110)).then(() => crowd(rank));
+      if (rank === 4){ restart(el.stage, 'shake'); restart(el.flash, 'on'); }
+      if (bonus) setTimeout(() => chime(G.combo), 230);
+      vibrate(rank >= 3 ? 35 : 15);
+    } else {
+      boo();
+    }
+    audience(rank);
+  }
+
+  function addScore(kind, rank, mult){
+    const aiz = kind === 'aiz';
+    const base = (aiz ? AIZ_PTS[rank] : RANKS[rank].pts) * mult;
+    const max = (aiz ? AIZ_PTS[4] : RANKS[4].pts) * mult;
+    (aiz ? G.aiz : G.tsuk)[rank]++;
+    let bonus = 0;
+    if (rank >= 3){
+      G.combo++;
+      if (G.combo > G.maxCombo) G.maxCombo = G.combo;
+      if (G.combo >= 2) bonus = aiz ? Math.min(20, (G.combo - 1) * 4) : Math.min(50, (G.combo - 1) * 10);
+    } else {
+      G.combo = 0;
+    }
+    const pts = base + bonus;
+    G.score += pts;
+    G.base += base;
+    G.baseMax += max;
+    G.laugh = clamp(G.laugh + (aiz ? AIZ_LAUGH[rank] : LAUGH_DELTA[rank]), 0, 100);
+    hud(pts > 0);
+    return { pts, bonus };
+  }
+
+  /* ---------- タップの受付（リアルタイム） ---------- */
+  function openWindow(limit, id, mode){
+    return new Promise(resolve => {
+      const t0 = performance.now();
+      win = { t0, limit, id, mode, resolve };
+      if (mode === 'finale'){ el.finaleBtn.classList.remove('armed', 'locked'); el.finaleBtn.classList.add('live'); }
+      else if (mode === 'aiz') el.aizBtn.classList.add('live');
+      else el.opts.forEach(b => { b.classList.remove('armed', 'locked'); b.classList.add('live'); });
+      el.timer.classList.add('on');
+      setCue(CUE_GO[mode], true);
+      const tick = now => {
+        if (!win || win.t0 !== t0) return;
+        const s = Math.max(0, (now - t0) / 1000);
+        el.needle.style.left = Math.min(100, s / limit * 100) + '%';
+        if (s >= limit){ closeWindow({ timeout: true, t: limit }); return; }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+  function closeWindow(res){
+    const w = win;
+    if (!w) return;
+    win = null;
+    el.timer.classList.remove('on');
+    el.opts.forEach(b => { b.classList.remove('live', 'armed'); b.classList.add('locked'); });
+    el.aizBtn.classList.remove('live');
+    el.finaleBtn.classList.remove('live', 'armed');
+    el.finaleBtn.classList.add('locked');
+    setCue('', false);
+    w.resolve(res);
+  }
+  function pressOption(i){
+    const w = win;
+    if (w && w.mode === 'opts' && alive(w.id)){ closeWindow({ choice: i, t: (performance.now() - w.t0) / 1000 }); return; }
+    const e = early;
+    if (e && e.kind === 'opts' && !e.tapAt && alive(e.id)){
+      e.tapAt = performance.now();
+      e.choice = i;
+      el.opts.forEach((b, k) => { b.classList.remove('armed'); b.classList.add('locked'); if (k === i) b.classList.add('picked'); });
+    }
+  }
+  function pressAizuchi(){
+    const w = win;
+    if (w && w.mode === 'aiz' && alive(w.id)){ closeWindow({ t: (performance.now() - w.t0) / 1000 }); return; }
+    const e = early;
+    if (e && e.kind === 'aiz' && !e.tapAt && alive(e.id)){
+      e.tapAt = performance.now();
+      el.aizBtn.classList.add('pressed');
+      showTsuk(e.word);
+      mouthPop(el.tsukChar);
+    }
+  }
+  function pressFinale(){
+    const w = win;
+    if (w && w.mode === 'finale' && alive(w.id)){ closeWindow({ t: (performance.now() - w.t0) / 1000 }); return; }
+    const e = early;
+    if (e && e.kind === 'finale' && !e.tapAt && alive(e.id)){
+      e.tapAt = performance.now();
+      el.finaleBtn.classList.remove('armed');
+      el.finaleBtn.classList.add('pressed');
+    }
+  }
+  // ボケがしゃべっている間の「早押し」を記録しつつ、セリフを最後まで流す
+  async function bokeLine(kind, text, o, id, word){
+    const e = { id, kind, word: word || '', tapAt: 0, choice: -1 };
+    early = e;
+    await speak('boke', text, o.speed, id, false, o.voice);
+    if (early === e) early = null;
+    if (!e.tapAt) return null;
+    return { delta: (e.tapAt - performance.now()) / 1000, choice: e.choice };
+  }
+
+  /* ---------- 進行 ---------- */
+  function roundOpts(r){
+    const P = C.pace, V = C.voice.boke;
+    return {
+      speed: Math.max(P.minSpeed, P.speed - r * P.accel),
+      voice: { rate: V.rate + r * (V.step || 0), pitch: V.pitch },
+      gs: P.gs + r * P.narrow,
+      ge: P.ge - r * P.narrow
+    };
+  }
+
+  async function aizuchiLine(line, word, o, id){
+    const A = aizSpec(o.gs, o.ge);
+    el.tsukBubble.classList.add('hide');
+    setGauge(A.zones, A.limit);
+    el.aizWord.textContent = word;
+    el.aizBtn.className = '';
+    setPad('aiz');
+    setCue('言い終わって、ひと呼吸おいて合いの手', false);
+    const pre = await bokeLine('aiz', line, o, id, word);
+    if (!alive(id)) return;
+    let res;
+    if (pre) res = { early: true, delta: pre.delta };
+    else {
+      res = await openWindow(A.limit, id, 'aiz');
+      if (!alive(id) || res.cancel) return;
+    }
+    setCue('', false);
+    let rank, note, voiced = true;
+    if (res.early){
+      if (res.delta < -EARLY_GRACE){ rank = 1; note = 'かぶった！'; voiced = false; }
+      else { rank = 2; note = '食い気味'; }
+    } else if (res.timeout){ rank = 0; note = '合いの手なし…'; voiced = false; }
+    else if (res.t < 0.1){ rank = 2; note = '早い'; }
+    else if (res.t < A.gs){ rank = 3; note = 'ちょい早い'; }
+    else if (res.t <= A.ge){ rank = 4; note = 'ええ間！'; }
+    else if (res.t <= A.yEnd){ rank = 3; note = 'ちょい遅れ'; }
+    else if (res.t <= A.oEnd){ rank = 2; note = '遅い'; }
+    else { rank = 1; note = '遅すぎ…'; }
+    const sc = addScore('aiz', rank, 1);
+    el.aizBtn.classList.remove('pressed', 'live');
+    el.aizBtn.classList.add(rank === 4 ? 'hit' : (rank === 3 ? 'meh' : 'bad'));
+    if (!res.timeout && !res.early) showTsuk(word);
+    const v = voiced ? tsukkomiVoice(word, C.voice.aiz) : Promise.resolve();
+    pon(rank);
+    miniPopup(rank, sc.pts, sc.bonus, note);
+    await Promise.all([sleep(res.timeout ? C.pace.aizAfter + 50 : C.pace.aizAfter), v]);
+  }
+
+  function tsukTiming(r){
+    const P = C.pace;
+    const voiced = Voice.enabled();
+    const fast = voiced ? Math.max(P.fastMin, P.fast - r * 0.05) : Math.max(P.fastMin + 0.15, P.fast + 0.2 - r * 0.06);
+    const late = fast + P.lateAdd + (voiced ? 0 : 0.1);
+    const limit = late + P.limitAdd + (voiced ? 0 : 0.1);
+    return { fast, late, limit };
+  }
+
+  async function tsukkomiTurn(n, r, o, id){
+    const tm = tsukTiming(r);
+    el.tsukBubble.classList.add('hide');
+    setGauge([[tm.fast, 'g', 'ジャスト'], [tm.late - tm.fast, 'y'], [tm.limit - tm.late, 'r']], tm.limit);
+    setOptions(n.opts);
+    setPad('opts');
+    setCue('ボケが来るで！', false);
+    const pre = await bokeLine('opts', n.punch, o, id);
+    if (!alive(id)) return;
+    let res;
+    if (pre) res = { choice: pre.choice, t: 0, early: pre.delta < -EARLY_GRACE };
+    else {
+      res = await openWindow(tm.limit, id, 'opts');
+      if (!alive(id) || res.cancel) return;
+    }
+    await judge(n, res, tm, id);
+  }
+
+  async function judge(n, res, tm, id){
+    setCue('', false);
+    const best = n.opts.find(o => o[1] === 4)[0];
+    let rank, note, said, hint = '';
+    if (res.timeout){
+      rank = 0; said = '……'; note = '時間切れ…'; hint = '◎「' + best + '」';
+    } else {
+      const o = currentOpts[res.choice];
+      const p = res.early ? 1 : (res.t <= tm.fast ? 0 : (res.t <= tm.late ? 1 : 2));
+      said = o.text;
+      rank = o.fit <= 0 ? 0 : Math.max(1, o.fit - p);
+      note = o.fit <= 0 ? 'ツッコミになってへん！' : FIT_WORD[o.fit] + '／' + (res.early ? '食い気味…' : TIME_WORD[p]);
+      if (o.fit < 4) hint = '◎「' + best + '」';
+      el.opts[res.choice].classList.add('picked');
+    }
+    el.opts.forEach((btn, i) => { if (currentOpts[i] && currentOpts[i].fit === 4) btn.classList.add('best'); });
+    const sc = addScore('tsuk', rank, 1);
+    showTsuk(said);
+    const tsukVoice = res.timeout ? Promise.resolve() : tsukkomiVoice(said, C.voice.tsuk.rate);
+    react(rank, sc.bonus, tsukVoice);
+    popup(rank, sc.pts, sc.bonus, note, hint);
+    if (n.why) setCue('ポイント：' + n.why, false);
+    await Promise.all([sleep(C.pace.after[0]), tsukVoice]);
+    if (!alive(id)) return;
+    if (res.timeout) await speak('boke', C.miss[0], 55, id, false, C.voice.boke);
+    else if (rank === 0) await speak('boke', C.miss[1], 55, id, false, C.voice.boke);
+    if (!alive(id)) return;
+    await sleep(C.pace.after[1]);
+  }
+
+  async function playNeta(n, r, id, prefix){
+    el.round.textContent = (r + 1) + '/' + C.rounds;
+    const o = roundOpts(r);
+    for (let k = 0; k < n.setup.length; k++){
+      const line = (k === 0 ? prefix : '') + n.setup[k][0];
+      await aizuchiLine(line, n.setup[k][1], o, id);
+      if (!alive(id)) return;
+      await sleep(C.pace.line);
+      if (!alive(id)) return;
+    }
+    await tsukkomiTurn(n, r, o, id);
+  }
+
+  function placeOff(){
+    [el.bokeChar, el.tsukChar].forEach(c => c.classList.remove('walk', 'walk-out', 'bow', 'lunge', 'hit', 'hit-big', 'talking', 'open'));
+    el.bokeChar.classList.add('off-l');
+    el.tsukChar.classList.add('off-r');
+    void el.stage.getBoundingClientRect();
+  }
+  function walkIn(){
+    [el.bokeChar, el.tsukChar].forEach(c => c.classList.add('walk'));
+    void el.stage.getBoundingClientRect();
+    el.bokeChar.classList.remove('off-l');
+    el.tsukChar.classList.remove('off-r');
+    setTimeout(() => { [el.bokeChar, el.tsukChar].forEach(c => c.classList.remove('walk')); }, (WALK_MS[C.move] || 3000) + 100);
+  }
+  function walkOut(){
+    [el.bokeChar, el.tsukChar].forEach(c => c.classList.add('walk-out'));
+    void el.stage.getBoundingClientRect();
+    el.bokeChar.classList.add('off-l');
+    el.tsukChar.classList.add('off-r');
+  }
+
+  async function entrance(id){
+    el.round.textContent = '登場';
+    setPad('none');
+    setIdle('出囃子にのって登場！');
+    setGauge([], 1);
+    setCue('', false);
+    placeOff();
+    el.stage.classList.add('closed');
+    const len = playTune(C.tune, 'full');
+    await sleep(150);
+    if (!alive(id)) return;
+    el.stage.classList.remove('closed');
+    await sleep(450);
+    if (!alive(id)) return;
+    applause(3.2, 110);
+    await sleep(400);
+    if (!alive(id)) return;
+    walkIn();
+    await sleep(Math.max((WALK_MS[C.move] || 3000) + 500, len * 1000 - 1000));
+    if (!alive(id)) return;
+    setIdle('');
+  }
+
+  async function greeting(id){
+    speak('tsuk', C.greet, 44, id, false, { silent: true });
+    await speak('boke', C.greet, 48, id, false, C.voice.boke);
+    if (!alive(id)) return;
+    restart(el.bokeChar, 'bow');
+    restart(el.tsukChar, 'bow');
+    await sleep(1150);
+    el.bokeChar.classList.remove('bow');
+    el.tsukChar.classList.remove('bow');
+  }
+
+  async function playOpening(id){
+    el.round.textContent = 'つかみ';
+    const o = roundOpts(0);
+    for (const [line, word] of C.opening){
+      await aizuchiLine(line, word, o, id);
+      if (!alive(id)) return;
+      await sleep(C.pace.line);
+      if (!alive(id)) return;
+    }
+  }
+
+  async function playFinale(id){
+    el.round.textContent = '締め';
+    const o = roundOpts(C.rounds);
+    await aizuchiLine(C.closing[0], C.closing[1], o, id);
+    if (!alive(id)) return;
+    await sleep(C.pace.line);
+    if (!alive(id)) return;
+    const line = C.finales[Math.floor(Math.random() * C.finales.length)];
+    const f = tsukTiming(0).fast;
+    el.tsukBubble.classList.add('hide');
+    setGauge([[f, 'g', 'ジャスト'], [0.8, 'y'], [1.4, 'r']], f + 2.2);
+    el.finaleBtn.className = 'armed';
+    setPad('finale');
+    setCue('最後のボケや…', false);
+    const pre = await bokeLine('finale', line, o, id);
+    if (!alive(id)) return;
+    let res;
+    if (pre) res = { t: 0, early: pre.delta < -EARLY_GRACE };
+    else {
+      res = await openWindow(f + 2.2, id, 'finale');
+      if (!alive(id) || res.cancel) return;
+    }
+    setCue('', false);
+    let rank, note;
+    if (res.timeout){ rank = 0; note = '締めそこねた…'; }
+    else if (res.early){ rank = 2; note = '食い気味の締め'; }
+    else if (res.t <= f){ rank = 4; note = 'キレッキレの締め！'; }
+    else if (res.t <= f + 0.8){ rank = 3; note = 'ええ締めや！'; }
+    else if (res.t <= f + 1.5){ rank = 2; note = 'ちょい遅れの締め'; }
+    else { rank = 1; note = '間があきすぎ…'; }
+    const sc = addScore('tsuk', rank, 2);
+    showTsuk(res.timeout ? '……' : 'もおええよ！');
+    const v = res.timeout ? Promise.resolve() : tsukkomiVoice('もおええよ！', C.voice.tsuk.rate * 0.9);
+    react(rank, sc.bonus, v);
+    popup(rank, sc.pts, sc.bonus, note + '（締めは2倍）', '');
+    await Promise.all([sleep(1300), v]);
+    if (!alive(id)) return;
+    if (res.timeout){
+      await speak('boke', C.stop, 58, id, false, C.voice.boke);
+      if (!alive(id)) return;
+      await sleep(300);
+    }
+    setPad('none');
+    setIdle('');
+    setGauge([], 1);
+    speak('tsuk', C.thanks, 44, id, false, { silent: true });
+    await speak('boke', C.thanks, 44, id, false, C.voice.boke);
+    if (!alive(id)) return;
+    restart(el.bokeChar, 'bow');
+    restart(el.tsukChar, 'bow');
+    playTune(C.tune, 'outro');
+    applause(2.6, 90);
+    audience(3);
+    await sleep(1150);
+    if (!alive(id)) return;
+    el.bokeChar.classList.remove('bow');
+    el.tsukChar.classList.remove('bow');
+    el.bokeBubble.classList.add('hide');
+    el.tsukBubble.classList.add('hide');
+    walkOut();
+    await sleep(Math.min(700, WALK_OUT_MS[C.move] || 700));
+    if (!alive(id)) return;
+    el.stage.classList.add('closed');
+    await sleep(1300);
+  }
+
+  async function startGame(comboId){
+    C = COMBOS.find(c => c.id === comboId) || C;
+    audioInit();
+    Voice.stop();
+    Voice.setCast(C.look.boke.sex, C.look.tsuk.sex);
+    Voice.unlock();
+    if (win){ const w = win; win = null; w.resolve({ cancel: true }); }
+    early = null;
+    const id = ++runId;
+    G = { score: 0, base: 0, baseMax: 0, combo: 0, maxCombo: 0, laugh: 30, aiz: [0, 0, 0, 0, 0], tsuk: [0, 0, 0, 0, 0] };
+    el.overlay.classList.add('hidden');
+    el.bokeBubble.classList.add('hide');
+    el.tsukBubble.classList.add('hide');
+    mouthOff(el.bokeChar);
+    mouthOff(el.tsukChar);
+    el.stage.classList.add('closed');
+    applyCombo();
+    hud(false);
+    setOptions(null);
+    settleAudience();
+    await entrance(id);
+    if (!alive(id)) return;
+    await greeting(id);
+    if (!alive(id)) return;
+    await playOpening(id);
+    if (!alive(id)) return;
+    const set = shuffle(C.netas).slice(0, C.rounds);
+    const trans = shuffle(C.transitions);
+    for (let r = 0; r < C.rounds; r++){
+      if (!alive(id)) return;
+      await playNeta(set[r], r, id, r === 0 ? '' : trans[(r - 1) % trans.length]);
+    }
+    if (!alive(id)) return;
+    await playFinale(id);
+    if (!alive(id)) return;
+    showResult();
+  }
+
+  /* ---------- タイトル（コンビ選び）・結果 ---------- */
+  function chipsHTML(textFn){
+    return [4, 3, 2, 1, 0].map(r => '<span class="chip" style="--c:' + RANKS[r].color + ';--ci:' + RANKS[r].ink + '">' + textFn(r) + '</span>').join('');
+  }
+  function comboCard(c){
+    const best = loadBest(c.id);
+    return '<button class="combo" type="button" data-id="' + c.id + '" style="--cc:' + c.look.boke.suit + ';--cc2:' + c.look.tsuk.suit + '">' +
+      '<span class="sw"><i></i><i></i></span>' +
+      '<span class="cb">' +
+        '<span class="cn">' + c.name + '</span>' +
+        '<span class="cm"><span class="tag">' + c.style + '</span><span class="lv" aria-label="むずかしさ' + c.level + '">' + '★'.repeat(c.level) + '☆'.repeat(3 - c.level) + '</span></span>' +
+        '<span class="cd">' + c.desc + '</span>' +
+        (best ? '<span class="cs">ハイスコア ' + fmt(best) + '点</span>' : '') +
+      '</span></button>';
+  }
+  function showTitle(){
+    el.panel.innerHTML =
+      '<h1 class="sign">ツッコミ漫才</h1>' +
+      '<p class="lead">相方を選んだら、出囃子とともに開演。<br>合いの手とツッコミで、漫才を成立させよう！</p>' +
+      '<details class="howto"><summary>遊び方</summary><div class="rules">' +
+        '<p><b>合いの手</b>　相方が言い終わってから、ひと呼吸おいてタップ。ゲージの緑が「ええ間」で、早すぎても遅すぎても減点。</p>' +
+        '<p><b>ツッコミ</b>　ボケたらツッコミが4つ出る。いちばん合うのを、すかさずタップ。</p>' +
+        '<div class="chips">' + chipsHTML(r => RANKS[r].short) + '</div>' +
+        '<p>どちらも5段階評価（ツッコミは最高100点、合いの手は最高50点）。最後は「もおええよ！」で締め（得点2倍）。</p>' +
+        '<p>★が多いコンビほどボケがむずかしく、正解のツッコミがわかりにくくなります。</p>' +
+      '</div></details>' +
+      '<p class="pick">コンビを選ぶ</p>' +
+      '<div class="combos">' + COMBOS.map(comboCard).join('') + '</div>' +
+      '<p class="best-line" id="soundNote">' + soundNoteText() + '</p>';
+    el.panel.querySelectorAll('.combo').forEach(b => b.addEventListener('click', () => startGame(b.dataset.id)));
+    el.overlay.classList.remove('hidden');
+    el.overlay.scrollTop = 0;
+  }
+  function showResult(){
+    const s = G.score;
+    const ratio = G.baseMax ? G.base / G.baseMax : 0;
+    const title = TITLES.find(t => ratio >= t[0])[1];
+    const prev = loadBest(C.id);
+    const isNew = s > prev;
+    if (isNew) store(BEST_PREFIX + C.id, String(s));
+    el.panel.innerHTML =
+      '<p class="done">' + C.name + '　本日の漫才、これにて終演</p>' +
+      '<h2 class="honor">' + title + '</h2>' +
+      '<div class="big-score">' + fmt(s) + '<small>点</small></div>' +
+      (isNew ? '<p class="new">ハイスコア更新！</p>' : '<p class="rec">ハイスコア ' + fmt(prev) + '点</p>') +
+      '<p class="row-label">ツッコミ</p>' +
+      '<div class="chips">' + chipsHTML(r => RANKS[r].short + ' ×' + G.tsuk[r]) + '</div>' +
+      '<p class="row-label">合いの手</p>' +
+      '<div class="chips">' + chipsHTML(r => RANKS[r].short + ' ×' + G.aiz[r]) + '</div>' +
+      '<p class="sub">最大コンボ ' + G.maxCombo + ' ／ 客席の笑い ' + Math.round(G.laugh) + '%</p>' +
+      '<div class="btns"><button class="big" id="again" type="button">もう一回</button><button class="big ghost" id="toPick" type="button">コンビを選ぶ</button></div>';
+    $('again').addEventListener('click', () => startGame(C.id));
+    $('toPick').addEventListener('click', showTitle);
+    el.overlay.classList.remove('hidden');
+    el.overlay.scrollTop = 0;
+  }
+
+  /* ---------- 入力 ---------- */
+  function bindPress(node, fn){
+    node.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' && e.button !== 0) return; fn(); });
+    node.addEventListener('click', fn);
+  }
+  el.opts.forEach((b, i) => bindPress(b, () => pressOption(i)));
+  bindPress(el.aizBtn, pressAizuchi);
+  bindPress(el.finaleBtn, pressFinale);
+  document.addEventListener('keydown', e => {
+    if (e.repeat) return;
+    const mode = el.pad.dataset.mode;
+    if (mode === 'opts' && e.key >= '1' && e.key <= '4'){ e.preventDefault(); pressOption(Number(e.key) - 1); }
+    else if ((e.key === ' ' || e.key === 'Enter') && (mode === 'aiz' || mode === 'finale')){
+      e.preventDefault();
+      if (mode === 'aiz') pressAizuchi(); else pressFinale();
+    }
+  });
+  function syncMute(){
+    el.mute.textContent = muted ? '🔇' : '🔊';
+    el.mute.setAttribute('aria-label', muted ? '音を出す' : '音を消す');
+  }
+  el.mute.addEventListener('click', () => {
+    muted = !muted;
+    store(MUTE_KEY, muted ? '1' : '0');
+    syncMute();
+    if (out) out.gain.value = muted ? 0 : 1;
+    if (muted) Voice.stop();
+    else { audioInit(); Voice.unlock(); }
+  });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) Voice.stop(); });
+
+  buildAudience();
+  syncMute();
+  applyCombo();
+  setGauge([], 1);
+  setPad('none');
+  setIdle('');
+  showTitle();
+})();
+</script>
+</body>
+</html>
